@@ -1,14 +1,14 @@
 namespace EasyParsing.Linq;
 
-public class SelectManyParser<TFirst, TSecond, TResult> : ParserBase<TResult>
+public class SelectManyParser<TFirst, TSecond, TResult> : IParser<TResult>
 {
-    private readonly ParserBase<TFirst> first;
-    private readonly Func<TFirst, ParserBase<TSecond>> secondSelector;
+    private readonly IParser<TFirst> first;
+    private readonly Func<TFirst, IParser<TSecond>> secondSelector;
     private readonly Func<TFirst, TSecond, TResult> resultSelector;
 
     public SelectManyParser(
-        ParserBase<TFirst> first,
-        Func<TFirst, ParserBase<TSecond>> secondSelector,
+        IParser<TFirst> first,
+        Func<TFirst, IParser<TSecond>> secondSelector,
         Func<TFirst, TSecond, TResult> resultSelector)
     {
         this.first = first;
@@ -16,7 +16,7 @@ public class SelectManyParser<TFirst, TSecond, TResult> : ParserBase<TResult>
         this.resultSelector = resultSelector;
     }
 
-    public override ParsingResult<TResult> Parse(ParsingContext context)
+    public ParsingResult<TResult> Parse(ParsingContext context)
     {
         var firstResult = first.Parse(context);
         if (!firstResult.Success)

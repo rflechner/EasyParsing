@@ -17,7 +17,7 @@ public class ManyParser<T> : ParserBase<T[]>
     {
         var results = new Queue<T>();
         var currentContext = context;
-        var success = false;
+        bool success;
         
         do
         {

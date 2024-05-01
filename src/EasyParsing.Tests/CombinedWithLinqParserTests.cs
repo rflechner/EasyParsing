@@ -97,10 +97,35 @@ public class CombinedWithLinqParserTests
     }
     
     [Test]
-    public void JsonParserTest()
+    public void ParseJsonWithOnlyOnePropertyAsInt_Shoudl_Success()
     {
-        var context = ParsingContext.FromString("{name: 'Toto', age: 39}");
+        var skipSpaces = new SkipSpacesParser();
+        var startObject = new OneCharParser('{').AsString() >> skipSpaces;
+        var endObject = new OneCharParser('}').AsString() >> skipSpaces;
+        var letterOrDigit = new SatisfyParser(char.IsLetterOrDigit);
+        var keyName = new ManyParser<char>(letterOrDigit).AsString() >> skipSpaces;
+        var keyValueSeparator = new OneCharParser(':').AsString() >> skipSpaces;
+        var valueParser = new ManyParser<char>(letterOrDigit).AsString() >> skipSpaces;
+
         
+        var jsonParser = 
+            from start in startObject
+            from key in keyName
+            from dotDot in keyValueSeparator
+            from value in valueParser
+            from end in endObject
+            select new
+            {
+                Key = key,
+                Value = value
+            };
         
+        var context = ParsingContext.FromString("{ age: 39}");
+        var result = jsonParser.Parse(context);
+
+        result.Success.Should().BeTrue();
+        result.Result!.Key.Should().Be("age");
+        result.Result!.Value.Should().Be("39");
+
     }
 }
