@@ -1,5 +1,11 @@
 namespace EasyParsing.Parsers;
 
+/// <summary>
+/// Parse text between 2 other matched parsings.
+/// </summary>
+/// <typeparam name="TLeft"></typeparam>
+/// <typeparam name="TRight"></typeparam>
+/// <typeparam name="T3"></typeparam>
 public class BetweenParser<TLeft, TRight, T3> : ParserBase<(TLeft, TRight, T3)>
 {
     private readonly IParser<TLeft> left;

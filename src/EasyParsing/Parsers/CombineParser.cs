@@ -1,5 +1,10 @@
 namespace EasyParsing.Parsers;
 
+/// <summary>
+/// Combine to parsers into one new parser.
+/// </summary>
+/// <typeparam name="TIn1"></typeparam>
+/// <typeparam name="TIn2"></typeparam>
 public class CombineParser<TIn1, TIn2> : ParserBase<(TIn1, TIn2)>
 {
     private readonly IParser<TIn1> left;

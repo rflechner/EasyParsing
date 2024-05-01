@@ -1,5 +1,8 @@
 namespace EasyParsing.Parsers;
 
+/// <summary>
+/// Match a char.
+/// </summary>
 public class OneCharParser : ParserBase<char>
 {
     private readonly char c;
