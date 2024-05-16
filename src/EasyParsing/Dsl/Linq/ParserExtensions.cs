@@ -1,6 +1,6 @@
 using EasyParsing.Parsers;
 
-namespace EasyParsing.Linq;
+namespace EasyParsing.Dsl.Linq;
 
 public static class ParserExtensions
 {

@@ -1,6 +1,7 @@
-using EasyParsing.Linq;
+using EasyParsing.Dsl.Linq;
 using EasyParsing.Parsers;
 using FluentAssertions;
+using static EasyParsing.Dsl.Parse;
 
 namespace EasyParsing.Tests;
 
@@ -97,16 +98,13 @@ public class CombinedWithLinqParserTests
     }
     
     [Test]
-    public void ParseJsonWithOnlyOnePropertyAsInt_Shoudl_Success()
+    public void ParseJsonWithOnlyOnePropertyAsInt_Should_Success()
     {
-        var skipSpaces = new SkipSpacesParser();
-        var startObject = new OneCharParser('{').AsString() >> skipSpaces;
-        var endObject = new OneCharParser('}').AsString() >> skipSpaces;
-        var letterOrDigit = new SatisfyParser(char.IsLetterOrDigit);
-        var keyName = new ManyParser<char>(letterOrDigit).AsString() >> skipSpaces;
-        var keyValueSeparator = new OneCharParser(':').AsString() >> skipSpaces;
-        var valueParser = new ManyParser<char>(letterOrDigit).AsString() >> skipSpaces;
-
+        var startObject = OneChar('{') >> SkipSpaces();
+        var endObject = OneChar('}') >> SkipSpaces();
+        var keyName = ManyLettersOrDigits() >> SkipSpaces();
+        var keyValueSeparator = OneChar(':') >> SkipSpaces();
+        var valueParser = ManyLettersOrDigits() >> SkipSpaces();
         
         var jsonParser = 
             from start in startObject
@@ -126,6 +124,48 @@ public class CombinedWithLinqParserTests
         result.Success.Should().BeTrue();
         result.Result!.Key.Should().Be("age");
         result.Result!.Value.Should().Be("39");
-
     }
+ 
+    [Test]
+    public void ParseJsonWithManyIntProperties_Should_Success()
+    {
+        var startObject = OneChar('{') >> SkipSpaces();
+        var endObject = OneChar('}') >> SkipSpaces();
+        var keyName = ManyLettersOrDigits() >> SkipSpaces();
+        var keyValueSeparator = OneChar(':') >> SkipSpaces();
+        var valueParser = ManyLettersOrDigits() >> SkipSpaces();
+        
+        var propertyAssign = 
+            from key in keyName
+            from dotDot in keyValueSeparator
+            from value in valueParser
+            select new
+            {
+                PropertyName = key,
+                PropertyValue = value
+            };
+        
+        
+        
+        var jsonParser = 
+            from start in startObject
+            from key in keyName
+            from dotDot in keyValueSeparator
+            from value in valueParser
+            from end in endObject
+            select new
+            {
+                Key = key,
+                Value = value
+            };
+        
+        var context = ParsingContext.FromString("{ age: 39, size_in_cm: 179}");
+        var result = jsonParser.Parse(context);
+
+        result.Success.Should().BeTrue();
+        result.Result!.Key.Should().Be("age");
+        result.Result!.Value.Should().Be("39");
+    }
+    
+    
 }

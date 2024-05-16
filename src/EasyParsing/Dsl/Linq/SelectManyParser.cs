@@ -1,4 +1,4 @@
-namespace EasyParsing.Linq;
+namespace EasyParsing.Dsl.Linq;
 
 public class SelectManyParser<TFirst, TSecond, TResult> : IParser<TResult>
 {
