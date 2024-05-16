@@ -4,6 +4,8 @@ public record ParsingContext(ReadOnlyMemory<char> Remaining, TextPosition Positi
 {
     public static ParsingContext FromString(string text) => new(text.AsMemory(), TextPosition.Zero);
 
+    public static implicit operator ParsingContext(string text) => FromString(text);
+    
     public ParsingContext Forward(int count) =>
         this with
         {

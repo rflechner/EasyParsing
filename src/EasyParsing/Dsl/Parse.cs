@@ -14,9 +14,14 @@ public static partial class Parse
     
     public static IParser<char> IsLetterOrDigit() => new SatisfyParser(char.IsLetterOrDigit);
     
-    public static IParser<string> ManyChars(IParser<char> f) => new ManyParser<char>(f).AsString();
-    
     public static IParser<string> ManyLettersOrDigits() => new ManyParser<char>(IsLetterOrDigit()).AsString();
+    
+    public static IParser<string> Many(IParser<char> parser) => new ManyParser<char>(parser).AsString();
+    
+    public static IParser<string> ManySatisfy(Func<char, bool> condition) => new ManyParser<char>(new SatisfyParser(condition)).AsString();
+    
+    public static IParser<T[]> SeparatedBy<T>(this IParser<T> itemParser, IParser<string> separatorParser, bool matchTailingSeparator = false) 
+        => new SeparatedByParser<T, string>(itemParser, separatorParser, matchTailingSeparator: matchTailingSeparator);
     
     
     

@@ -1,3 +1,4 @@
+using EasyParsing.Dsl;
 using EasyParsing.Dsl.Linq;
 using EasyParsing.Parsers;
 using FluentAssertions;
@@ -86,15 +87,15 @@ public class CombinedWithLinqParserTests
         var letterOrDigitParser = new SatisfyParser(char.IsLetterOrDigit);
         var nameParser = new ManyParser<char>(letterOrDigitParser).Map(chars => new string(chars));
 
-        var betweenParser = new BetweenParser<char, char, string>(quoteParser, nameParser, quoteParser);
+        var betweenParser = new BetweenParser<char, string, char>(quoteParser, nameParser, quoteParser);
 
         var context = ParsingContext.FromString("'Toto'");
         var parsingResult = betweenParser.Parse(context);
 
         parsingResult.Success.Should().BeTrue();
         parsingResult.Result.Item1.Should().Be('\'');
-        parsingResult.Result.Item2.Should().Be('\'');
-        parsingResult.Result.Item3.Should().Be("Toto");
+        parsingResult.Result.Item2.Should().Be("Toto");
+        parsingResult.Result.Item3.Should().Be('\'');
     }
     
     [Test]
@@ -131,7 +132,7 @@ public class CombinedWithLinqParserTests
     {
         var startObject = OneChar('{') >> SkipSpaces();
         var endObject = OneChar('}') >> SkipSpaces();
-        var keyName = ManyLettersOrDigits() >> SkipSpaces();
+        var keyName = ManySatisfy(c => char.IsLetterOrDigit(c) || c == '_') >> SkipSpaces();
         var keyValueSeparator = OneChar(':') >> SkipSpaces();
         var valueParser = ManyLettersOrDigits() >> SkipSpaces();
         
@@ -139,33 +140,22 @@ public class CombinedWithLinqParserTests
             from key in keyName
             from dotDot in keyValueSeparator
             from value in valueParser
-            select new
-            {
-                PropertyName = key,
-                PropertyValue = value
-            };
+            select (PropertyName: key, PropertyValue: value);
+
+        IParser<(string PropertyName, string PropertyValue)[]> propertiesListParser = propertyAssign.SeparatedBy(OneChar(',') >> SkipSpaces());
+
+        var jsonParser = new BetweenParser<string, (string PropertyName, string PropertyValue)[], string>(startObject, propertiesListParser, endObject);
         
-        
-        
-        var jsonParser = 
-            from start in startObject
-            from key in keyName
-            from dotDot in keyValueSeparator
-            from value in valueParser
-            from end in endObject
-            select new
-            {
-                Key = key,
-                Value = value
-            };
-        
-        var context = ParsingContext.FromString("{ age: 39, size_in_cm: 179}");
-        var result = jsonParser.Parse(context);
+        var result = jsonParser.Parse("{ age: 39, size_in_cm: 179}");
 
         result.Success.Should().BeTrue();
-        result.Result!.Key.Should().Be("age");
-        result.Result!.Value.Should().Be("39");
+        result.Result.Before.Should().Be("{");
+        result.Result.After.Should().Be("}");
+
+        result.Result.Item.Should().BeEquivalentTo([
+            (PropertyName: "age", PropertyValue: "39"),
+            (PropertyName: "size_in_cm", PropertyValue: "179"),
+        ]);
     }
-    
     
 }
