@@ -17,7 +17,7 @@ public class OrElseParser<T> : ParserBase<T>
         {
             var result = parser.Parse(context);
             if (result.Success && result.Result != null)
-                return Success(context, result.Result);
+                return Success(result.Context, result.Result);
             
             if (result.FailureMessage != null)
                 failureMessages.Add(result.FailureMessage);
