@@ -157,5 +157,28 @@ public class CombinedWithLinqParserTests
             (PropertyName: "size_in_cm", PropertyValue: "179"),
         ]);
     }
+
+    [TestCase("\"hello world !\"", "", true)]
+    [TestCase("'hello world !'", "", true)]
+    [TestCase("\"hello world !'", "", false)]
+    [TestCase("\"hello world ", "\"hello world ", false)]
+    public void QuotedString_ShouldBe_Expected(string text, string remaining, bool shouldSuccess)
+    {
+        var doubleQuote = OneChar('"');
+        var simpleQuote = OneChar('\'');
+        
+        IParser<string> ContentParser (char quoteChar)
+        {
+            return new WhileTextParser(match => match.Span.EndsWith($"\\{quoteChar}") || !match.Span.EndsWith(quoteChar.ToString()));
+        }
+
+        var parser =
+            (from start in doubleQuote from str in ContentParser('"') select str)
+            .Or(from start in simpleQuote from str in ContentParser('\'') select str);
+
+        var result = parser.Parse(text);
+
+        result.Success.Should().Be(shouldSuccess);
+    }
     
 }
