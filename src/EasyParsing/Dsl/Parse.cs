@@ -22,7 +22,7 @@ public static partial class Parse
     
     public static IParser<T[]> SeparatedBy<T>(this IParser<T> itemParser, IParser<string> separatorParser, bool matchTailingSeparator = false) 
         => new SeparatedByParser<T, string>(itemParser, separatorParser, matchTailingSeparator: matchTailingSeparator);
-    
-    
-    
+
+    public static IParser<string> ConsumeWhile(Func<ReadOnlyMemory<char>, bool> condition) => new WhileTextParser(condition);
+
 }

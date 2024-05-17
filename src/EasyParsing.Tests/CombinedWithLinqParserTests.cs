@@ -160,7 +160,7 @@ public class CombinedWithLinqParserTests
 
     [TestCase("\"hello world !\"", "", true)]
     [TestCase("'hello world !'", "", true)]
-    [TestCase("\"hello world !'", "", false)]
+    [TestCase("\"hello world !'", "\"hello world !'", false)]
     [TestCase("\"hello world ", "\"hello world ", false)]
     public void QuotedString_ShouldBe_Expected(string text, string remaining, bool shouldSuccess)
     {
@@ -169,16 +169,17 @@ public class CombinedWithLinqParserTests
         
         IParser<string> ContentParser (char quoteChar)
         {
-            return new WhileTextParser(match => match.Span.EndsWith($"\\{quoteChar}") || !match.Span.EndsWith(quoteChar.ToString()));
+            return ConsumeWhile(match => match.Span.EndsWith($"\\{quoteChar}") || !match.Span.EndsWith(quoteChar.ToString()));
         }
 
-        var parser =
-            (from start in doubleQuote from str in ContentParser('"') select str)
-            .Or(from start in simpleQuote from str in ContentParser('\'') select str);
-
+        var simpleQuotedStringParser = from start in doubleQuote from str in ContentParser('"') select str;
+        var doubleQuotedStringParser = from start in simpleQuote from str in ContentParser('\'') select str;
+        var parser = simpleQuotedStringParser | doubleQuotedStringParser;
+        
         var result = parser.Parse(text);
 
         result.Success.Should().Be(shouldSuccess);
+        result.Context.Remaining.ToString().Should().Be(remaining);
     }
     
 }
