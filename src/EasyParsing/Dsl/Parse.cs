@@ -6,7 +6,7 @@ namespace EasyParsing.Dsl;
 public static partial class Parse
 {
 
-    public static SkipSpacesParser SkipSpaces() => new();
+    public static IParser<string> SkipSpaces() => new SkipSpacesParser();
     
     public static IParser<string> OneChar(char c) => new OneCharParser(c).AsString();
     
@@ -24,5 +24,8 @@ public static partial class Parse
         => new SeparatedByParser<T, string>(itemParser, separatorParser, matchTailingSeparator: matchTailingSeparator);
 
     public static IParser<string> ConsumeWhile(Func<ReadOnlyMemory<char>, bool> condition) => new WhileTextParser(condition);
+    
+    public static BetweenParser<TLeft, T3, TRight> Between<TLeft, T3, TRight>(IParser<TLeft> left, IParser<T3> items, IParser<TRight> right) => new(left, items, right);
 
+    
 }

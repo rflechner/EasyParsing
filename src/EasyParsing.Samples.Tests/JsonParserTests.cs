@@ -101,6 +101,32 @@ public class JsonParserTests
         result.Success.Should().BeFalse();
     }
     
+    [Test]
+    public void PropertiesListParserWithMultipleProperties_Should_Success()
+    {
+        var result = JsonParser.propertiesListParser.Parse("age: 36, activated: true");
+
+        result.Success.Should().BeTrue();
+        result.Result.Should()
+            .BeEquivalentTo([
+                new JsonAst.JsonProperty("age", new JsonAst.JsonLongValue(36)),
+                new JsonAst.JsonProperty("activated", new JsonAst.JsonBoolValue(true)),
+            ]);
+    }
     
+    [Test]
+    public void JsonObjectParserWithMultiplePropertiesAtSameLevel_Should_Success()
+    {
+        var result = JsonParser.jsonObjectParser.Value.Parse("{ popo: 'hello, fine ?', age: 36, size_in_cm: 1.78, activated: true }");
+
+        result.Success.Should().BeTrue();
+        result.Result.Should()
+            .BeEquivalentTo(new JsonAst.JsonObject([
+                new JsonAst.JsonProperty("popo", new JsonAst.JsonStringValue("hello, fine ?")),
+                new JsonAst.JsonProperty("age", new JsonAst.JsonLongValue(36)),
+                new JsonAst.JsonProperty("size_in_cm", new JsonAst.JsonDecimalValue(1.78m)),
+                new JsonAst.JsonProperty("activated", new JsonAst.JsonBoolValue(true)),
+            ]));
+    }
     
 }

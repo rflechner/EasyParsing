@@ -1,4 +1,5 @@
 using System.Globalization;
+using EasyParsing.Dsl;
 using EasyParsing.Dsl.Linq;
 using EasyParsing.Parsers;
 using static EasyParsing.Dsl.Parse;
@@ -76,11 +77,18 @@ public class JsonParser
         from dotDot in keyValueSeparator
         from value in valueParser.Value
         select new JsonAst.JsonProperty(key, value));
+
+    internal static IParser<JsonAst.JsonProperty[]> propertiesListParser => propertyAssignParser.Value.SeparatedBy(OneChar(',') >> SkipSpaces());
     
-    
+    internal static Lazy<IParser<JsonAst.JsonObject>> jsonObjectParser = new(() =>
+    {
+        return Between(startObject, propertiesListParser,  SkipSpaces() >> endObject)
+            .Map(i => new JsonAst.JsonObject(i.Item));
+    });
     
     public static JsonAst.JsonValue ParseJson(string text)
     {
+
         throw new NotImplementedException();
     }
     
