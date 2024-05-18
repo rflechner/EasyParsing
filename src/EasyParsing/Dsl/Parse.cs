@@ -5,7 +5,6 @@ namespace EasyParsing.Dsl;
 
 public static partial class Parse
 {
-
     public static IParser<string> SkipSpaces() => new SkipSpacesParser();
     
     public static IParser<string> OneChar(char c) => new OneCharParser(c).AsString();

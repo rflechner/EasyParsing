@@ -172,8 +172,8 @@ public class CombinedWithLinqParserTests
             return ConsumeWhile(match => match.Span.EndsWith($"\\{quoteChar}") || !match.Span.EndsWith(quoteChar.ToString()));
         }
 
-        var simpleQuotedStringParser = from start in doubleQuote from str in ContentParser('"') select str;
-        var doubleQuotedStringParser = from start in simpleQuote from str in ContentParser('\'') select str;
+        var simpleQuotedStringParser = from start in doubleQuote from str in ContentParser('"') >> doubleQuote select str;
+        var doubleQuotedStringParser = from start in simpleQuote from str in ContentParser('\'') >> simpleQuote select str;
         var parser = simpleQuotedStringParser | doubleQuotedStringParser;
         
         var result = parser.Parse(text);
@@ -181,6 +181,17 @@ public class CombinedWithLinqParserTests
         result.Success.Should().Be(shouldSuccess);
         result.Context.Remaining.ToString().Should().Be(remaining);
     }
-    
+
+    [Test]
+    public void ConsumeWhile_Should_MachOnlyDigits()
+    {
+        var parser = ConsumeWhile(match => match.Span.ToArray().All(char.IsDigit));
+
+        var result = parser.Parse("123456abcd");
+
+        result.Success.Should().BeTrue();
+        result.Result.Should().Be("123456");
+        result.Context.Remaining.ToString().Should().Be("abcd");
+    }
     
 }

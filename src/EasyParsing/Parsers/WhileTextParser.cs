@@ -15,12 +15,11 @@ public class WhileTextParser : ParserBase<string>
 
         for (var i = 0; i <= span.Length; i++)
         {
-            var current = span[..i];
-            if (!condition(current))
+            if (!condition(span[..i]))
             {
                 if (i <= 0)
                     return Fail(context, "Nothing matched");
-                return Success(context.Forward(i), current.ToString());
+                return Success(context.Forward(i-1), span[..(i-1)].ToString());
             }
         }
         
