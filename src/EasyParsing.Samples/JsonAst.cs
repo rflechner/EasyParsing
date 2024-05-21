@@ -12,7 +12,6 @@ public abstract record JsonAst
     public sealed record JsonBoolValue(bool Value) : JsonValue;
     
     public sealed record JsonArray(JsonValue[] Items) : JsonValue;
-    public sealed record JsonObject(JsonProperty[] Properties) : JsonValue;
-
     
+    public sealed record JsonObject(JsonProperty[] Properties) : JsonValue;
 }

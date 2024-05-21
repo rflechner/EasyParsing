@@ -82,7 +82,7 @@ public class JsonParserTests
     [Test]
     public void PropertyAssignParserWithString_Should_Success()
     {
-        var result = JsonParser.propertyAssignParser.Value.Parse("\"popo\": 'hello, fine ?'");
+        var result = JsonParser.PropertyAssignParser.Parse("\"popo\": 'hello, fine ?'");
 
         result.Success.Should().BeTrue();
         result.Result.Should()
@@ -92,7 +92,7 @@ public class JsonParserTests
     [Test]
     public void PropertyAssignParserWithBool_Should_Success()
     {
-        var result = JsonParser.propertyAssignParser.Value.Parse("\"activated\": true");
+        var result = JsonParser.PropertyAssignParser.Parse("\"activated\": true");
 
         result.Success.Should().BeTrue();
         result.Result.Should()
@@ -104,7 +104,7 @@ public class JsonParserTests
     [TestCase("'age': dewdfew", false,  0, typeof(JsonAst.JsonDecimalValue))]
     public void PropertyAssignParserWithDecimal_ShouldBe_Expected(string text, bool shouldSuccess, object expectedValue, Type expectedType)
     {
-        var result = JsonParser.propertyAssignParser.Value.Parse(text);
+        var result = JsonParser.PropertyAssignParser.Parse(text);
 
         if (shouldSuccess)
         {
@@ -133,7 +133,7 @@ public class JsonParserTests
     [TestCase("\"age\": dewdfew", false,  0)]
     public void PropertyAssignParserWithLong_ShouldBe_Expected(string text, bool shouldSuccess, long expectedValue)
     {
-        var result = JsonParser.propertyAssignParser.Value.Parse(text);
+        var result = JsonParser.PropertyAssignParser.Parse(text);
 
         if (shouldSuccess)
         {
@@ -150,7 +150,7 @@ public class JsonParserTests
     [Test]
     public void PropertiesListParserWithMultipleProperties_Should_Success()
     {
-        var result = JsonParser.propertiesListParser.Parse("'age': 36, \"activated\": true");
+        var result = JsonParser.PropertiesListParser.Parse("'age': 36, \"activated\": true");
 
         result.Success.Should().BeTrue();
         result.Result.Should()
@@ -163,7 +163,7 @@ public class JsonParserTests
     [Test]
     public void JsonObjectParserWithMultiplePropertiesAtSameLevel_Should_Success()
     {
-        var result = JsonParser.jsonObjectParser.Value.Parse("{ \"popo\" : 'hello, fine ?', \"age\": 36, \"size_in_cm\": 1.78, \"activated\": true }");
+        var result = JsonParser.JsonObjectParser.Parse("{ \"popo\" : 'hello, fine ?', \"age\": 36, \"size_in_cm\": 1.78, \"activated\": true }");
 
         result.Success.Should().BeTrue();
         result.Result.Should()
@@ -178,7 +178,7 @@ public class JsonParserTests
     [Test]
     public void JsonArrayOfPrimitiveValues_Should_Success()
     {
-        var result = JsonParser.jsonArrayParser.Value.Parse("[ 123, 2, 32324.234, 23,22  , \"hello, lol !\" ]");
+        var result = JsonParser.JsonArrayParser.Parse("[ 123, 2, 32324.234, 23,22  , \"hello, lol !\" ]");
 
         result.Success.Should().BeTrue();
         result.Result.Should()
@@ -215,7 +215,7 @@ public class JsonParserTests
                                  }
                              ]
                              """;
-        var result = JsonParser.jsonArrayParser.Value.Parse(json);
+        var result = JsonParser.JsonArrayParser.Parse(json);
 
         result.Success.Should().BeTrue();
         result.Result.Should()
