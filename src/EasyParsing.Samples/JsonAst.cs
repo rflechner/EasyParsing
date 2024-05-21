@@ -13,5 +13,5 @@ public abstract record JsonAst
     
     public sealed record JsonArray(JsonValue[] Items) : JsonValue;
     
-    public sealed record JsonObject(JsonProperty[] Properties) : JsonValue;
+    public sealed record JsonObject(IDictionary<string, JsonValue> Properties) : JsonValue;
 }

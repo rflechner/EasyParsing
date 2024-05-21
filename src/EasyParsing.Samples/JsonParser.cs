@@ -67,7 +67,7 @@ public class JsonParser
     
     internal static readonly IParser<JsonAst.JsonObject> JsonObjectParser = 
         Between(StartObject, PropertiesListParser,  SkipSpaces() >> EndObject)
-            .Map(i => new JsonAst.JsonObject(i.Item));
+            .Map(i => new JsonAst.JsonObject(i.Item.ToDictionary(p => p.Name, p => p.Value)));
     
     internal static readonly IParser<JsonAst.JsonValue[]> ItemsParser = ValueParser.SeparatedBy(SkipSpaces() >> OneChar(',') >> SkipSpaces());
 

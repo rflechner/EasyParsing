@@ -23,4 +23,11 @@
         <ProjectReference Include="..\EasyParsing\EasyParsing.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="payload1.json" />
+      <Content Include="payload1.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>

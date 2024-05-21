@@ -19,7 +19,7 @@ public class OneCharParser : ParserBase<char>
             return Fail(context, "end of buffer");
 
         if (span[0] != c)
-            return Fail(context, "not expected char");
+            return Fail(context, $"not expected char '{c}'");
 
         return Success(context.ForwardChar(c), c);
     }
