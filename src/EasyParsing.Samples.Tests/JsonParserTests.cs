@@ -86,7 +86,7 @@ public class JsonParserTests
 
         result.Success.Should().BeTrue();
         result.Result.Should()
-            .BeEquivalentTo(new JsonAst.JsonProperty("popo", new JsonAst.JsonStringValue("hello, fine ?")));
+            .BeEquivalentTo(new JsonProperty("popo", new JsonStringValue("hello, fine ?")));
     }
     
     [Test]
@@ -96,12 +96,12 @@ public class JsonParserTests
 
         result.Success.Should().BeTrue();
         result.Result.Should()
-            .BeEquivalentTo(new JsonAst.JsonProperty("activated", new JsonAst.JsonBoolValue(true)));
+            .BeEquivalentTo(new JsonProperty("activated", new JsonBoolValue(true)));
     }
     
-    [TestCase("\"age\": 32.1234", true,  32.1234d, typeof(JsonAst.JsonDecimalValue))]
-    [TestCase("'age': 32,1234", true,  32L, typeof(JsonAst.JsonLongValue))]
-    [TestCase("'age': dewdfew", false,  0, typeof(JsonAst.JsonDecimalValue))]
+    [TestCase("\"age\": 32.1234", true,  32.1234d, typeof(JsonDecimalValue))]
+    [TestCase("'age': 32,1234", true,  32L, typeof(JsonLongValue))]
+    [TestCase("'age': dewdfew", false,  0, typeof(JsonDecimalValue))]
     public void PropertyAssignParserWithDecimal_ShouldBe_Expected(string text, bool shouldSuccess, object expectedValue, Type expectedType)
     {
         var result = JsonParser.PropertyAssignParser.Parse(text);
@@ -110,16 +110,16 @@ public class JsonParserTests
         {
             result.Success.Should().BeTrue();
 
-            if (expectedType == typeof(JsonAst.JsonDecimalValue))
+            if (expectedType == typeof(JsonDecimalValue))
             {
                 result.Result.Should()
-                    .BeEquivalentTo(new JsonAst.JsonProperty("age", new JsonAst.JsonDecimalValue((decimal)(double)expectedValue)));
+                    .BeEquivalentTo(new JsonProperty("age", new JsonDecimalValue((decimal)(double)expectedValue)));
             }
 
-            if (expectedType == typeof(JsonAst.JsonLongValue))
+            if (expectedType == typeof(JsonLongValue))
             {
                 result.Result.Should()
-                    .BeEquivalentTo(new JsonAst.JsonProperty("age", new JsonAst.JsonLongValue((long)expectedValue)));
+                    .BeEquivalentTo(new JsonProperty("age", new JsonLongValue((long)expectedValue)));
             }
 
             return;
@@ -139,7 +139,7 @@ public class JsonParserTests
         {
             result.Success.Should().BeTrue();
             result.Result.Should()
-                .BeEquivalentTo(new JsonAst.JsonProperty("age", new JsonAst.JsonLongValue(expectedValue)));
+                .BeEquivalentTo(new JsonProperty("age", new JsonLongValue(expectedValue)));
             
             return;
         }
@@ -155,8 +155,8 @@ public class JsonParserTests
         result.Success.Should().BeTrue();
         result.Result.Should()
             .BeEquivalentTo([
-                new JsonAst.JsonProperty("age", new JsonAst.JsonLongValue(36)),
-                new JsonAst.JsonProperty("activated", new JsonAst.JsonBoolValue(true)),
+                new JsonProperty("age", new JsonLongValue(36)),
+                new JsonProperty("activated", new JsonBoolValue(true)),
             ]);
     }
     
@@ -167,13 +167,13 @@ public class JsonParserTests
 
         result.Success.Should().BeTrue();
         result.Result.Should()
-            .BeEquivalentTo(new JsonAst.JsonObject(
-            new Dictionary<string, JsonAst.JsonValue>
+            .BeEquivalentTo(new JsonObject(
+            new Dictionary<string, JsonValue>
             {
-                { "popo", new JsonAst.JsonStringValue("hello, fine ?") },
-                {"age", new JsonAst.JsonLongValue(36) },
-                {"size_in_cm", new JsonAst.JsonDecimalValue(1.78m) },
-                {"activated", new JsonAst.JsonBoolValue(true) },   
+                { "popo", new JsonStringValue("hello, fine ?") },
+                {"age", new JsonLongValue(36) },
+                {"size_in_cm", new JsonDecimalValue(1.78m) },
+                {"activated", new JsonBoolValue(true) },   
             }));
     }
     
@@ -184,13 +184,13 @@ public class JsonParserTests
 
         result.Success.Should().BeTrue();
         result.Result.Should()
-            .BeEquivalentTo(new JsonAst.JsonArray([
-                new JsonAst.JsonLongValue(123),
-                new JsonAst.JsonLongValue(2),
-                new JsonAst.JsonDecimalValue(32324.234m),
-                new JsonAst.JsonLongValue(23),
-                new JsonAst.JsonLongValue(22),
-                new JsonAst.JsonStringValue("hello, lol !")
+            .BeEquivalentTo(new JsonArray([
+                new JsonLongValue(123),
+                new JsonLongValue(2),
+                new JsonDecimalValue(32324.234m),
+                new JsonLongValue(23),
+                new JsonLongValue(22),
+                new JsonStringValue("hello, lol !")
             ]));
     }
         
@@ -221,33 +221,33 @@ public class JsonParserTests
 
         result.Success.Should().BeTrue();
         result.Result.Should()
-            .BeEquivalentTo(new JsonAst.JsonArray([
-                new JsonAst.JsonLongValue(123),
-                new JsonAst.JsonLongValue(2),
-                new JsonAst.JsonDecimalValue(32324.234m),
-                new JsonAst.JsonLongValue(23),
-                new JsonAst.JsonLongValue(22),
-                new JsonAst.JsonStringValue("hello, lol !"),
+            .BeEquivalentTo(new JsonArray([
+                new JsonLongValue(123),
+                new JsonLongValue(2),
+                new JsonDecimalValue(32324.234m),
+                new JsonLongValue(23),
+                new JsonLongValue(22),
+                new JsonStringValue("hello, lol !"),
                 
-                new JsonAst.JsonObject(new Dictionary<string, JsonAst.JsonValue>
+                new JsonObject(new Dictionary<string, JsonValue>
                 {
-                    { "name", new JsonAst.JsonStringValue("Joe John") },
-                    { "description", new JsonAst.JsonStringValue("Hi, I'm \"cool\" !!") },
-                    { "age", new JsonAst.JsonLongValue(39) },
+                    { "name", new JsonStringValue("Joe John") },
+                    { "description", new JsonStringValue("Hi, I'm \"cool\" !!") },
+                    { "age", new JsonLongValue(39) },
                     { "hobbies", 
-                        new JsonAst.JsonArray([
-                            new JsonAst.JsonStringValue("lol"),
-                            new JsonAst.JsonLongValue(76),
+                        new JsonArray([
+                            new JsonStringValue("lol"),
+                            new JsonLongValue(76),
                             
-                            new JsonAst.JsonObject(new Dictionary<string, JsonAst.JsonValue>
+                            new JsonObject(new Dictionary<string, JsonValue>
                             {
-                                {"id", new JsonAst.JsonStringValue("1234")},
-                                {"score", new JsonAst.JsonDecimalValue(1223.234m)},
+                                {"id", new JsonStringValue("1234")},
+                                {"score", new JsonDecimalValue(1223.234m)},
                                 {
                                     "names", 
-                                    new JsonAst.JsonArray([
-                                        new JsonAst.JsonStringValue("game 1"),
-                                        new JsonAst.JsonStringValue("game 2"),
+                                    new JsonArray([
+                                        new JsonStringValue("game 1"),
+                                        new JsonStringValue("game 2"),
                                     ])
                                 },
                             })

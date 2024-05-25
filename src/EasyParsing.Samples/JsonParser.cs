@@ -33,62 +33,62 @@ public class JsonParser
 
     internal static readonly IParser<string> StringParser = CreateStringParser('\'') | CreateStringParser('"');
     
-    internal static readonly IParser<JsonAst.JsonStringValue> JsonStringValueParser =
+    internal static readonly IParser<JsonStringValue> JsonStringValueParser =
         from str in StringParser 
-        select new JsonAst.JsonStringValue(str);
+        select new JsonStringValue(str);
 
-    internal static readonly IParser<JsonAst.JsonBoolValue> TrueParser = from str in ManySatisfy(char.IsLetter)
+    internal static readonly IParser<JsonBoolValue> TrueParser = from str in ManySatisfy(char.IsLetter)
         where str.Equals("true", StringComparison.InvariantCultureIgnoreCase)
-        select new JsonAst.JsonBoolValue(true);
+        select new JsonBoolValue(true);
 
-    internal static readonly IParser<JsonAst.JsonBoolValue> FalseParser = from str in ManySatisfy(char.IsLetter)
+    internal static readonly IParser<JsonBoolValue> FalseParser = from str in ManySatisfy(char.IsLetter)
         where str.Equals("false", StringComparison.InvariantCultureIgnoreCase)
-        select new JsonAst.JsonBoolValue(false);
+        select new JsonBoolValue(false);
     
-    internal static readonly IParser<JsonAst.JsonBoolValue> JsonBoolValueParser = TrueParser | FalseParser;
+    internal static readonly IParser<JsonBoolValue> JsonBoolValueParser = TrueParser | FalseParser;
 
-    internal static readonly IParser<JsonAst.JsonDecimalValue> JsonDecimalValueParser =
+    internal static readonly IParser<JsonDecimalValue> JsonDecimalValueParser =
         from abs in ManySatisfy(char.IsDigit)
         from point in OneChar('.')
         from rel in ManySatisfy(char.IsDigit)
-        select new JsonAst.JsonDecimalValue(decimal.Parse($"{abs}.{rel}", NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture));
+        select new JsonDecimalValue(decimal.Parse($"{abs}.{rel}", NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture));
 
-    internal static readonly IParser<JsonAst.JsonLongValue> JsonLongValueParser =
+    internal static readonly IParser<JsonLongValue> JsonLongValueParser =
         from i in ManySatisfy(char.IsDigit)
-        select new JsonAst.JsonLongValue(long.Parse(i, CultureInfo.InvariantCulture));
+        select new JsonLongValue(long.Parse(i, CultureInfo.InvariantCulture));
     
-    internal static readonly IParser<JsonAst.JsonProperty> PropertyAssignParser = 
+    internal static readonly IParser<JsonProperty> PropertyAssignParser = 
         from key in StringParser >> SkipSpaces()
         from dotDot in KeyValueSeparator
         from value in ValueParser
-        select new JsonAst.JsonProperty(key, value);
+        select new JsonProperty(key, value);
 
-    internal static readonly IParser<JsonAst.JsonProperty[]> PropertiesListParser = 
+    internal static readonly IParser<JsonProperty[]> PropertiesListParser = 
         PropertyAssignParser.SeparatedBy(SkipSpaces() >> OneChar(',') >> SkipSpaces());
     
-    internal static readonly IParser<JsonAst.JsonObject> JsonObjectParser = 
+    internal static readonly IParser<JsonObject> JsonObjectParser = 
         Between(StartObject, PropertiesListParser,  SkipSpaces() >> EndObject)
-            .Map(i => new JsonAst.JsonObject(i.Item.ToDictionary(p => p.Name, p => p.Value)));
+            .Map(i => new JsonObject(i.Item.ToDictionary(p => p.Name, p => p.Value)));
     
-    internal static readonly IParser<JsonAst.JsonValue[]> ItemsParser = ValueParser.SeparatedBy(SkipSpaces() >> OneChar(',') >> SkipSpaces());
+    internal static readonly IParser<JsonValue[]> ItemsParser = ValueParser.SeparatedBy(SkipSpaces() >> OneChar(',') >> SkipSpaces());
 
     // When the parsers depend recursively on each other,
     // building them on the fly by exposing them with a function is a solution for building the global parser.
-    internal static IParser<JsonAst.JsonArray> JsonArrayParser =>
+    internal static IParser<JsonArray> JsonArrayParser =>
             Between(StartArray, ItemsParser,  SkipSpaces() >> EndArray)
-            .Map(i => new JsonAst.JsonArray(i.Item));
+            .Map(i => new JsonArray(i.Item));
 
-    internal static IParser<JsonAst.JsonValue> ValueParser =>
-            JsonStringValueParser.Cast<JsonAst.JsonStringValue, JsonAst.JsonValue>()
-            | JsonBoolValueParser.Cast<JsonAst.JsonBoolValue, JsonAst.JsonValue>()
-            | JsonDecimalValueParser.Cast<JsonAst.JsonDecimalValue, JsonAst.JsonValue>()
-            | JsonLongValueParser.Cast<JsonAst.JsonLongValue, JsonAst.JsonValue>()
-            | JsonObjectParser.Cast<JsonAst.JsonObject, JsonAst.JsonValue>()
-            | JsonArrayParser.Cast<JsonAst.JsonArray, JsonAst.JsonValue>();
+    internal static IParser<JsonValue> ValueParser =>
+            JsonStringValueParser.Cast<JsonStringValue, JsonValue>()
+            | JsonBoolValueParser.Cast<JsonBoolValue, JsonValue>()
+            | JsonDecimalValueParser.Cast<JsonDecimalValue, JsonValue>()
+            | JsonLongValueParser.Cast<JsonLongValue, JsonValue>()
+            | JsonObjectParser.Cast<JsonObject, JsonValue>()
+            | JsonArrayParser.Cast<JsonArray, JsonValue>();
 
-    public static JsonAst.JsonValue ParseJson(string text)
+    public static JsonValue ParseJson(string text)
     {
-        ParsingResult<JsonAst.JsonValue> result = ValueParser.Parse(text);
+        ParsingResult<JsonValue> result = ValueParser.Parse(text);
         
         if (!result.Success)
             throw new JsonParsingException(result.FailureMessage);
