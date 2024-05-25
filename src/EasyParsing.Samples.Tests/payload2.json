@@ -1,0 +1,11 @@
+{
+  "name": "Toto lol",
+  "l'age du \"capitaine\" Toto": 37.5, 
+  "age": 39, 
+  "orders": [
+    {
+      "id": 1,
+      "price":  1234.98
+    }
+  ]
+}

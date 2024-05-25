@@ -15,11 +15,12 @@ public class JsonParser
             match => match.Span.EndsWith($"\\{quoteChar}") || !match.Span.EndsWith(quoteChar.ToString())
         );
         var quote = OneChar(quoteChar);
-        
-        return 
-            from start in quote 
+
+        var parser = from start in quote 
             from str in contentParser >> quote 
             select str;
+        
+        return parser.Map(s => s.Replace($"\\{quoteChar}", $"{quoteChar}"));
     }
     
     internal static readonly IParser<string> StartObject = OneChar('{') >> SkipSpaces();

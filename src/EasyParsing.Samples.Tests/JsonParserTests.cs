@@ -232,7 +232,7 @@ public class JsonParserTests
                 new JsonAst.JsonObject(new Dictionary<string, JsonAst.JsonValue>
                 {
                     { "name", new JsonAst.JsonStringValue("Joe John") },
-                    { "description", new JsonAst.JsonStringValue("Hi, I'm \\\"cool\\\" !!") },
+                    { "description", new JsonAst.JsonStringValue("Hi, I'm \"cool\" !!") },
                     { "age", new JsonAst.JsonLongValue(39) },
                     { "hobbies", 
                         new JsonAst.JsonArray([

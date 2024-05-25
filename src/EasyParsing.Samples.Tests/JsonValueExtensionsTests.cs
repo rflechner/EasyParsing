@@ -13,10 +13,12 @@ public class JsonValueExtensionsTests
 
         var age = json.Select("age")?.ReadAsInt();
         var name = json.Select("name")?.ReadAsString();
-        var strangProperty = json.Select("l'age du \\\"capitaine\\\" Toto")?.ReadAsDecimal();
+        var strangProperty = json.Select("l'age du \"capitaine\" Toto")?.ReadAsDecimal();
+        var message = json.Select("message")?.ReadAsString();
 
-        age?.Should().Be(39);
-        name?.Should().Be("Toto lol");
-        strangProperty?.Should().Be(37.5m);
+        age!.Should().Be(39);
+        name!.Should().Be("Toto lol");
+        strangProperty!.Should().Be(37.5m);
+        message!.Should().Be("Hello, my name is \"The Giant\". I'm fine.");
     }
 }

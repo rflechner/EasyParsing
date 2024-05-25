@@ -162,6 +162,7 @@ public class CombinedWithLinqParserTests
     [TestCase("'hello world !'", "", true)]
     [TestCase("\"hello world !'", "\"hello world !'", false)]
     [TestCase("\"hello world ", "\"hello world ", false)]
+    [TestCase("\"hello world I am \\\"Mike\\\" !\"", "", true)]
     public void QuotedString_ShouldBe_Expected(string text, string remaining, bool shouldSuccess)
     {
         var doubleQuote = OneChar('"');
