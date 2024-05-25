@@ -12,6 +12,11 @@ public static class ParserExtensions
         return new MapParser<TIn, TOut>(input, mapper);
     }
     
+    public static IParser<TOut> Cast<TIn, TOut>(this IParser<TIn> input) where TIn : TOut
+    {
+        return new MapParser<TIn, TOut>(input, @in => (TOut) @in);
+    }
+    
     public static IParser<string> Until<T>(this IParser<T> parser, string text, bool skipMatch = true)
     {
         return new UntilTextParser(text, skipMatch);

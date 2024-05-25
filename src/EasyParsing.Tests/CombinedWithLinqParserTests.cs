@@ -1,6 +1,8 @@
-using EasyParsing.Linq;
+using EasyParsing.Dsl;
+using EasyParsing.Dsl.Linq;
 using EasyParsing.Parsers;
 using FluentAssertions;
+using static EasyParsing.Dsl.Parse;
 
 namespace EasyParsing.Tests;
 
@@ -85,22 +87,112 @@ public class CombinedWithLinqParserTests
         var letterOrDigitParser = new SatisfyParser(char.IsLetterOrDigit);
         var nameParser = new ManyParser<char>(letterOrDigitParser).Map(chars => new string(chars));
 
-        var betweenParser = new BetweenParser<char, char, string>(quoteParser, nameParser, quoteParser);
+        var betweenParser = new BetweenParser<char, string, char>(quoteParser, nameParser, quoteParser);
 
         var context = ParsingContext.FromString("'Toto'");
         var parsingResult = betweenParser.Parse(context);
 
         parsingResult.Success.Should().BeTrue();
         parsingResult.Result.Item1.Should().Be('\'');
-        parsingResult.Result.Item2.Should().Be('\'');
-        parsingResult.Result.Item3.Should().Be("Toto");
+        parsingResult.Result.Item2.Should().Be("Toto");
+        parsingResult.Result.Item3.Should().Be('\'');
     }
     
     [Test]
-    public void JsonParserTest()
+    public void ParseJsonWithOnlyOnePropertyAsInt_Should_Success()
     {
-        var context = ParsingContext.FromString("{name: 'Toto', age: 39}");
+        var startObject = OneChar('{') >> SkipSpaces();
+        var endObject = OneChar('}') >> SkipSpaces();
+        var keyName = ManyLettersOrDigits() >> SkipSpaces();
+        var keyValueSeparator = OneChar(':') >> SkipSpaces();
+        var valueParser = ManyLettersOrDigits() >> SkipSpaces();
         
+        var jsonParser = 
+            from start in startObject
+            from key in keyName
+            from dotDot in keyValueSeparator
+            from value in valueParser
+            from end in endObject
+            select new
+            {
+                Key = key,
+                Value = value
+            };
         
+        var context = ParsingContext.FromString("{ age: 39}");
+        var result = jsonParser.Parse(context);
+
+        result.Success.Should().BeTrue();
+        result.Result!.Key.Should().Be("age");
+        result.Result!.Value.Should().Be("39");
     }
+ 
+    [Test]
+    public void ParseJsonWithManyIntProperties_Should_Success()
+    {
+        var startObject = OneChar('{') >> SkipSpaces();
+        var endObject = OneChar('}') >> SkipSpaces();
+        var keyName = ManySatisfy(c => char.IsLetterOrDigit(c) || c == '_') >> SkipSpaces();
+        var keyValueSeparator = OneChar(':') >> SkipSpaces();
+        var valueParser = ManyLettersOrDigits() >> SkipSpaces();
+        
+        var propertyAssign = 
+            from key in keyName
+            from dotDot in keyValueSeparator
+            from value in valueParser
+            select (PropertyName: key, PropertyValue: value);
+
+        IParser<(string PropertyName, string PropertyValue)[]> propertiesListParser = propertyAssign.SeparatedBy(OneChar(',') >> SkipSpaces());
+
+        var jsonParser = new BetweenParser<string, (string PropertyName, string PropertyValue)[], string>(startObject, propertiesListParser, endObject);
+        
+        var result = jsonParser.Parse("{ age: 39, size_in_cm: 179}");
+
+        result.Success.Should().BeTrue();
+        result.Result.Before.Should().Be("{");
+        result.Result.After.Should().Be("}");
+
+        result.Result.Item.Should().BeEquivalentTo([
+            (PropertyName: "age", PropertyValue: "39"),
+            (PropertyName: "size_in_cm", PropertyValue: "179"),
+        ]);
+    }
+
+    [TestCase("\"hello world !\"", "", true)]
+    [TestCase("'hello world !'", "", true)]
+    [TestCase("\"hello world !'", "\"hello world !'", false)]
+    [TestCase("\"hello world ", "\"hello world ", false)]
+    [TestCase("\"hello world I am \\\"Mike\\\" !\"", "", true)]
+    public void QuotedString_ShouldBe_Expected(string text, string remaining, bool shouldSuccess)
+    {
+        var doubleQuote = OneChar('"');
+        var simpleQuote = OneChar('\'');
+        
+        IParser<string> ContentParser (char quoteChar)
+        {
+            return ConsumeWhile(match => match.Span.EndsWith($"\\{quoteChar}") || !match.Span.EndsWith(quoteChar.ToString()));
+        }
+
+        var simpleQuotedStringParser = from start in doubleQuote from str in ContentParser('"') >> doubleQuote select str;
+        var doubleQuotedStringParser = from start in simpleQuote from str in ContentParser('\'') >> simpleQuote select str;
+        var parser = simpleQuotedStringParser | doubleQuotedStringParser;
+        
+        var result = parser.Parse(text);
+
+        result.Success.Should().Be(shouldSuccess);
+        result.Context.Remaining.ToString().Should().Be(remaining);
+    }
+
+    [Test]
+    public void ConsumeWhile_Should_MachOnlyDigits()
+    {
+        var parser = ConsumeWhile(match => match.Span.ToArray().All(char.IsDigit));
+
+        var result = parser.Parse("123456abcd");
+
+        result.Success.Should().BeTrue();
+        result.Result.Should().Be("123456");
+        result.Context.Remaining.ToString().Should().Be("abcd");
+    }
+    
 }

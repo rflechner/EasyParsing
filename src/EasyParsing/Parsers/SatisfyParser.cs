@@ -1,5 +1,8 @@
 namespace EasyParsing.Parsers;
 
+/// <summary>
+/// Match a char satisfying a condition.
+/// </summary>
 public class SatisfyParser : ParserBase<char>
 {
     private readonly Func<char, bool> condition;

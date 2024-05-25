@@ -1,10 +1,16 @@
 namespace EasyParsing.Parsers;
 
-public class BetweenParser<TLeft, TRight, T3> : ParserBase<(TLeft, TRight, T3)>
+/// <summary>
+/// Parse text between 2 other matched parsings.
+/// </summary>
+/// <typeparam name="TLeft"></typeparam>
+/// <typeparam name="TRight"></typeparam>
+/// <typeparam name="T3"></typeparam>
+public class BetweenParser<TLeft, T3, TRight> : ParserBase<(TLeft Before, T3 Item, TRight After)>
 {
     private readonly IParser<TLeft> left;
-    private readonly IParser<TRight> right;
     private readonly IParser<T3> middle;
+    private readonly IParser<TRight> right;
 
     public BetweenParser(IParser<TLeft> left, IParser<T3> middle, IParser<TRight> right)
     {
@@ -13,7 +19,7 @@ public class BetweenParser<TLeft, TRight, T3> : ParserBase<(TLeft, TRight, T3)>
         this.middle = middle;
     }
     
-    public override ParsingResult<(TLeft, TRight, T3)> Parse(ParsingContext context)
+    public override ParsingResult<(TLeft Before, T3 Item, TRight After)> Parse(ParsingContext context)
     {
         var leftResult = left.Parse(context);
         if (!leftResult.Success || leftResult.Result == null)
@@ -27,6 +33,6 @@ public class BetweenParser<TLeft, TRight, T3> : ParserBase<(TLeft, TRight, T3)>
         if (!rightResult.Success || rightResult.Result == null)
             return Fail(context, rightResult.FailureMessage!);
 
-        return Success(rightResult.Context, (leftResult.Result, rightResult.Result, middleResult.Result));
+        return Success(rightResult.Context, (leftResult.Result, middleResult.Result, rightResult.Result));
     }
 }

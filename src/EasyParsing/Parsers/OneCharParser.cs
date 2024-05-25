@@ -1,5 +1,8 @@
 namespace EasyParsing.Parsers;
 
+/// <summary>
+/// Match a char.
+/// </summary>
 public class OneCharParser : ParserBase<char>
 {
     private readonly char c;
@@ -16,7 +19,7 @@ public class OneCharParser : ParserBase<char>
             return Fail(context, "end of buffer");
 
         if (span[0] != c)
-            return Fail(context, "not expected char");
+            return Fail(context, $"not expected char '{c}'");
 
         return Success(context.ForwardChar(c), c);
     }

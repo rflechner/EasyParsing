@@ -1,5 +1,10 @@
 namespace EasyParsing.Parsers;
 
+/// <summary>
+/// Transform a parser result.
+/// </summary>
+/// <typeparam name="TIn"></typeparam>
+/// <typeparam name="TOut"></typeparam>
 public class MapParser<TIn, TOut> : ParserBase<TOut>
 {
     private readonly IParser<TIn> input;

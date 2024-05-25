@@ -1,11 +1,11 @@
-namespace EasyParsing.Linq;
+namespace EasyParsing.Dsl.Linq;
 
 public class SelectParser<TSource, TResult> : ParserBase<TResult>
 {
-    private readonly ParserBase<TSource> source;
+    private readonly IParser<TSource> source;
     private readonly Func<TSource, TResult> selector;
 
-    public SelectParser(ParserBase<TSource> source, Func<TSource, TResult> selector)
+    public SelectParser(IParser<TSource> source, Func<TSource, TResult> selector)
     {
         this.source = source;
         this.selector = selector;

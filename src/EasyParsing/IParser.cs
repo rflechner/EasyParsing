@@ -15,5 +15,14 @@ public interface IParser<T>
     {
         return new CombineParser<T, T>(left, right);
     }
-    
+
+    public static IParser<T> operator >>(IParser<T> left, IParser<T> right)
+    {
+        return new CombineParser<T, T>(left, right).Map(tuple => tuple.Item1);
+    }
+
+    public static IParser<T> operator <<(IParser<T> left, IParser<T> right)
+    {
+        return new CombineParser<T, T>(left, right).Map(tuple => tuple.Item2);
+    }
 }
