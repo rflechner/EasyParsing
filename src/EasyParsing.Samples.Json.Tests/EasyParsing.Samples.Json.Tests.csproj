@@ -7,6 +7,7 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
+        <RootNamespace>EasyParsing.Samples.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -19,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\EasyParsing.Samples\EasyParsing.Samples.csproj" />
+        <ProjectReference Include="..\EasyParsing.Samples.Json\EasyParsing.Samples.Json.csproj" />
         <ProjectReference Include="..\EasyParsing\EasyParsing.csproj" />
     </ItemGroup>
 

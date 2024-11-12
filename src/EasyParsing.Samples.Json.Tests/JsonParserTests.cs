@@ -1,4 +1,5 @@
 using EasyParsing.Dsl.Linq;
+using EasyParsing.Samples.Json;
 using FluentAssertions;
 using NUnit.Framework;
 using static EasyParsing.Dsl.Parse;

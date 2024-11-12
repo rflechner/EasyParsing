@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace EasyParsing.Samples;
+namespace EasyParsing.Samples.Json;
 
 public static class JsonValueExtensions
 {

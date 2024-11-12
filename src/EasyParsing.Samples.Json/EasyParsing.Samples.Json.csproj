@@ -11,7 +11,7 @@
     </ItemGroup>
     
     <ItemGroup>
-        <InternalsVisibleTo Include="EasyParsing.Samples.Tests" />
+        <InternalsVisibleTo Include="EasyParsing.Samples.Json.Tests" />
     </ItemGroup>
 
 </Project>

@@ -4,7 +4,7 @@ using EasyParsing.Dsl.Linq;
 using EasyParsing.Parsers;
 using static EasyParsing.Dsl.Parse;
 
-namespace EasyParsing.Samples;
+namespace EasyParsing.Samples.Json;
 
 public class JsonParser
 {

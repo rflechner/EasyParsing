@@ -1,3 +1,4 @@
+using EasyParsing.Samples.Json;
 using FluentAssertions;
 using NUnit.Framework;
 
