@@ -17,7 +17,7 @@ public class WhereParser<T> : ParserBase<T>
         if (!result.Success)
             return result;
 
-        if (!predicate(result.Result))
+        if (result.Result is null || !predicate(result.Result))
             return new ParsingResult<T>(result.Context, false, default, "Predicate not satisfied");
 
         return result;

@@ -7,7 +7,7 @@ public class BasicParserTests
 {
     
     [Test]
-    public async Task OneCharParser_Should_Fail()
+    public Task OneCharParser_Should_Fail()
     {
         var context = ParsingContext.FromString("hello");
         var parser = new OneCharParser('a');
@@ -19,10 +19,11 @@ public class BasicParserTests
         result.Context.Position.Offset.Should().Be(0);
         result.Context.Position.Line.Should().Be(0);
         result.Context.Position.Column.Should().Be(0);
+        return Task.CompletedTask;
     }
     
     [Test]
-    public async Task OneCharParser_Should_Success()
+    public Task OneCharParser_Should_Success()
     {
         var context = ParsingContext.FromString("hello");
         var parser = new OneCharParser('h');
@@ -34,10 +35,11 @@ public class BasicParserTests
         result.Context.Position.Offset.Should().Be(1);
         result.Context.Position.Line.Should().Be(0);
         result.Context.Position.Column.Should().Be(1);
+        return Task.CompletedTask;
     }
     
     [Test]
-    public async Task CombineOneCharParsers_Should_Success()
+    public Task CombineOneCharParsers_Should_Success()
     {
         var context = ParsingContext.FromString("hello");
         var hLetterParser = new OneCharParser('h');
@@ -54,10 +56,11 @@ public class BasicParserTests
         result.Context.Position.Offset.Should().Be(2);
         result.Context.Position.Line.Should().Be(0);
         result.Context.Position.Column.Should().Be(2);
+        return Task.CompletedTask;
     }
     
     [Test]
-    public async Task UntilTextParser_Should_Success()
+    public Task UntilTextParser_Should_Success()
     {
         var context = ParsingContext.FromString("my_json_prop :delimiter: 1234");
         var parser = new UntilTextParser(":delimiter:", false);
@@ -72,10 +75,11 @@ public class BasicParserTests
         result.Context.Position.Offset.Should().Be(13);
         result.Context.Position.Line.Should().Be(0);
         result.Context.Position.Column.Should().Be(13);
+        return Task.CompletedTask;
     }
     
     [Test]
-    public async Task UntilTextParserTakingAfterMatch_Should_Success()
+    public Task UntilTextParserTakingAfterMatch_Should_Success()
     {
         var context = ParsingContext.FromString("my_json_prop :delimiter: 1234");
         var parser = new UntilTextParser(":delimiter:");
@@ -90,6 +94,7 @@ public class BasicParserTests
         result.Context.Position.Offset.Should().Be(24);
         result.Context.Position.Line.Should().Be(0);
         result.Context.Position.Column.Should().Be(24);
+        return Task.CompletedTask;
     }
     
     

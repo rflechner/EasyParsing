@@ -7,7 +7,7 @@ namespace EasyParsing.Tests;
 public class SeparatedByParserTests
 {
     [Test]
-    public async Task TwoItemsSepByComma_Should_Success()
+    public Task TwoItemsSepByComma_Should_Success()
     {
         var context = ParsingContext.FromString("abcde,12345");
         var parser = new SeparatedByParser<string, string>(Parse.ManyLettersOrDigits(), Parse.OneChar(','));
@@ -16,10 +16,11 @@ public class SeparatedByParserTests
         
         result.Success.Should().BeTrue();
         result.Result.Should().BeEquivalentTo(["abcde", "12345"]);
+        return Task.CompletedTask;
     }
     
     [Test]
-    public async Task FiveItemsSepByComma_Should_Success()
+    public Task FiveItemsSepByComma_Should_Success()
     {
         var context = ParsingContext.FromString("abcde,12345,popopo,lalala,98765");
         var parser = new SeparatedByParser<string, string>(Parse.ManyLettersOrDigits(), Parse.OneChar(','));
@@ -28,10 +29,11 @@ public class SeparatedByParserTests
         
         result.Success.Should().BeTrue();
         result.Result.Should().BeEquivalentTo(["abcde", "12345", "popopo", "lalala", "98765"]);
+        return Task.CompletedTask;
     }
     
     [Test]
-    public async Task FiveItemsSepByCommaEndingByComma_Should_SuccessAndLeftLastCommaInContext()
+    public Task FiveItemsSepByCommaEndingByComma_Should_SuccessAndLeftLastCommaInContext()
     {
         var context = ParsingContext.FromString("abcde,12345,popopo,lalala,98765,");
         var parser = new SeparatedByParser<string, string>(Parse.ManyLettersOrDigits(), Parse.OneChar(','));
@@ -41,10 +43,11 @@ public class SeparatedByParserTests
         result.Success.Should().BeTrue();
         result.Result.Should().BeEquivalentTo(["abcde", "12345", "popopo", "lalala", "98765"]);
         result.Context.Remaining.ToString().Should().Be(",");
+        return Task.CompletedTask;
     }
     
     [Test]
-    public async Task FiveItemsSepByCommaEndingByCommaWhenMatchTailingSeparator_Should_SuccessAndLeftLastCommaInContext()
+    public Task FiveItemsSepByCommaEndingByCommaWhenMatchTailingSeparator_Should_SuccessAndLeftLastCommaInContext()
     {
         var context = ParsingContext.FromString("abcde,12345,popopo,lalala,98765,");
         var parser = new SeparatedByParser<string, string>(Parse.ManyLettersOrDigits(), Parse.OneChar(','), matchTailingSeparator: true);
@@ -54,6 +57,7 @@ public class SeparatedByParserTests
         result.Success.Should().BeTrue();
         result.Result.Should().BeEquivalentTo(["abcde", "12345", "popopo", "lalala", "98765"]);
         result.Context.Remaining.ToString().Should().BeEmpty();
+        return Task.CompletedTask;
     }
     
     

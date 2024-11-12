@@ -1,0 +1,6 @@
+<Project>
+    <PropertyGroup>
+        <!-- Transforme tous les avertissements en erreurs -->
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    </PropertyGroup>
+</Project>
