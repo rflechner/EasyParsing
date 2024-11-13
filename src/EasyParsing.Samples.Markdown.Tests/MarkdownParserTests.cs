@@ -13,13 +13,27 @@ public class MarkdownParserTests
     public void TitleParser_Should_DetectTitleWithLevel1(string input, string expectedTitleText, int expectedLevel)
     {
         var parser = MarkdownParser.TitleParser;
-        
         var result = parser.Parse(input);
 
         result.Success.Should().Be(true);
         result.Context.Remaining.ToString().Should().BeEmpty();
 
         result.Result.Should().BeEquivalentTo(new Title(expectedLevel, expectedTitleText));
+    }
+
+    [TestCase("[Duck Duck Go](https://duckduckgo.com)", "Duck Duck Go", "https://duckduckgo.com", "")]
+    [TestCase("[Page 2](/article?page=2)", "Page 2", "/article?page=2", "")]
+    [TestCase("[Page 2 - 50%](/article-x?page=2&var_2=%20lala)", "Page 2 - 50%", "/article-x?page=2&var_2=%20lala", "")]
+    [TestCase("[Duck Duck Go](https://duckduckgo.com \"A search engine\")", "Duck Duck Go", "https://duckduckgo.com", "A search engine")]
+    public void LinkParser_Should_MatchExpectedLinks(string input, string expectedLinkText, string expectedLinkUrl, string expectedTitleText)
+    {
+        var parser = MarkdownParser.LinkParser;
+        var result = parser.Parse(input);
+
+        result.Success.Should().Be(true);
+        result.Context.Remaining.ToString().Should().BeEmpty();
+
+        result.Result.Should().BeEquivalentTo(new Link(expectedLinkText, expectedLinkUrl, expectedTitleText));
     }
     
 }

@@ -1,3 +1,4 @@
+using EasyParsing.Dsl;
 using EasyParsing.Dsl.Linq;
 using EasyParsing.Samples.Json;
 using FluentAssertions;
@@ -12,7 +13,7 @@ public class JsonParserTests
     [Test]
     public void ParseStringFollowedByChar_Should_Success()
     {
-        var strParser = JsonParser.StringParser;// >> SkipSpaces();
+        var strParser = QuotedTextParser;// >> SkipSpaces();
         var keyValueSeparator = OneChar(':') >> SkipSpaces();
         
         var parser = 
@@ -46,7 +47,7 @@ public class JsonParserTests
     [TestCase("\"hello world ", "\"hello world ", false)]
     public void QuotedString_ShouldBe_Expected(string text, string remaining, bool shouldSuccess)
     {
-        var parser = JsonParser.StringParser >> SkipSpaces();
+        var parser = QuotedTextParser >> SkipSpaces();
         
         var result = parser.Parse(text);
 

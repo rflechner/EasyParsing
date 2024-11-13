@@ -8,20 +8,6 @@ namespace EasyParsing.Samples.Json;
 
 public class JsonParser
 {
-    internal static IParser<string> CreateStringParser(char quoteChar)
-    {
-        var contentParser = ConsumeWhile
-        (
-            match => match.Span.EndsWith($"\\{quoteChar}") || !match.Span.EndsWith(quoteChar.ToString())
-        );
-        var quote = OneChar(quoteChar);
-
-        var parser = from start in quote 
-            from str in contentParser >> quote 
-            select str;
-        
-        return parser.Map(s => s.Replace($"\\{quoteChar}", $"{quoteChar}"));
-    }
     
     internal static readonly IParser<string> StartObject = OneChar('{') >> SkipSpaces();
     internal static readonly IParser<string> EndObject = OneChar('}') >> SkipSpaces();
@@ -30,11 +16,9 @@ public class JsonParser
     internal static readonly IParser<string> EndArray = OneChar(']') >> SkipSpaces();
     
     internal static readonly IParser<string> KeyValueSeparator = OneChar(':') >> SkipSpaces();
-
-    internal static readonly IParser<string> StringParser = CreateStringParser('\'') | CreateStringParser('"');
     
     internal static readonly IParser<JsonStringValue> JsonStringValueParser =
-        from str in StringParser 
+        from str in QuotedTextParser 
         select new JsonStringValue(str);
 
     internal static readonly IParser<JsonBoolValue> TrueParser = from str in ManySatisfy(char.IsLetter)
@@ -58,7 +42,7 @@ public class JsonParser
         select new JsonLongValue(long.Parse(i, CultureInfo.InvariantCulture));
     
     internal static readonly IParser<JsonProperty> PropertyAssignParser = 
-        from key in StringParser >> SkipSpaces()
+        from key in QuotedTextParser >> SkipSpaces()
         from dotDot in KeyValueSeparator
         from value in ValueParser
         select new JsonProperty(key, value);

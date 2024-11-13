@@ -5,6 +5,8 @@ namespace EasyParsing.Dsl;
 
 public static partial class Parse
 {
+    public static IParser<Option<T>> Optionnal<T>(this IParser<T> parser) => new OptionnalParser<T>(parser);
+    
     public static IParser<string> SkipSpaces() => new SkipSpacesParser();
     
     public static IParser<string> OneChar(char c) => new OneCharParser(c).AsString();
@@ -26,5 +28,20 @@ public static partial class Parse
     
     public static BetweenParser<TLeft, T3, TRight> Between<TLeft, T3, TRight>(IParser<TLeft> left, IParser<T3> items, IParser<TRight> right) => new(left, items, right);
 
+    public static IParser<string> CreateStringParser(char quoteChar)
+    {
+        var contentParser = ConsumeWhile
+        (
+            match => match.Span.EndsWith($"\\{quoteChar}") || !match.Span.EndsWith(quoteChar.ToString())
+        );
+        var quote = OneChar(quoteChar);
+
+        var parser = from start in quote 
+            from str in contentParser >> quote 
+            select str;
+        
+        return parser.Map(s => s.Replace($"\\{quoteChar}", $"{quoteChar}"));
+    }
     
+    public static IParser<string> QuotedTextParser  = CreateStringParser('\'') | CreateStringParser('"');
 }

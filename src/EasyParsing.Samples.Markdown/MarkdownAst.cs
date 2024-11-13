@@ -4,4 +4,4 @@ public abstract record MarkdownAst;
 
 public record Title(int Depth, string Text) : MarkdownAst;
 
-public record HyperLink(string Text, string Url) : MarkdownAst;
+public record Link(string Text, string Url, string Title) : MarkdownAst;
