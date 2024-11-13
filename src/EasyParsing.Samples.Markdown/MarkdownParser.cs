@@ -23,17 +23,18 @@ public class MarkdownParser
             && c != '"';
     
     private static readonly IParser<string> LettersDigitsOrSpacesParser = ManySatisfy(UrlValidChars);
+
+    private static readonly IParser<(string, Option<string>)> UrlAndTitleParser = (ManySatisfy(UrlValidChars) >> SkipSpaces()).Combine(QuotedTextParser.Optionnal());
     
-    internal static IParser<Link> LinkParser
-    {
-        get
-        {
-            var urlAndTitleParser = (ManySatisfy(UrlValidChars) >> SkipSpaces()).Combine(QuotedTextParser.Optionnal());
-            
-            return 
-                from label in Between(OneChar('['), LettersDigitsOrSpacesParser, OneChar(']'))
-                from urlAndTitle in Between(OneChar('('), urlAndTitleParser, OneChar(')'))
-                select new Link(label.Item, urlAndTitle.Item.Item1.Trim(), urlAndTitle.Item.Item2.GetValueOrDefault(string.Empty)!.Trim());
-        }
-    }
+    internal static IParser<Link> LinkParser =>
+        from label in Between(OneChar('['), LettersDigitsOrSpacesParser, OneChar(']'))
+        from urlAndTitle in Between(OneChar('('), UrlAndTitleParser, OneChar(')'))
+        select new Link(label.Item, urlAndTitle.Item.Item1.Trim(), urlAndTitle.Item.Item2.GetValueOrDefault(string.Empty)!.Trim());
+    
+    
+    internal static IParser<Image> ImageParser =>
+        from _ in OneChar('!')
+        from link in LinkParser
+        select new Image(link.Text, link.Url, link.Title);
+    
 }

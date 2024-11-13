@@ -35,5 +35,18 @@ public class MarkdownParserTests
 
         result.Result.Should().BeEquivalentTo(new Link(expectedLinkText, expectedLinkUrl, expectedTitleText));
     }
+
+    [TestCase("![The San Juan Mountains are beautiful!](/assets/images/san-juan-mountains.jpg \"San Juan Mountains\")", "The San Juan Mountains are beautiful!", "/assets/images/san-juan-mountains.jpg", "San Juan Mountains")]
+    [TestCase("![The San Juan Mountains are beautiful!](/assets/images/san-juan-mountains.jpg)", "The San Juan Mountains are beautiful!", "/assets/images/san-juan-mountains.jpg", "")]
+    public void ImageParser_Should_MatchExpected(string input, string expectedLinkText, string expectedLinkUrl, string expectedTitleText)
+    {
+        var parser = MarkdownParser.ImageParser;
+        var result = parser.Parse(input);
+
+        result.Success.Should().Be(true);
+        result.Context.Remaining.ToString().Should().BeEmpty();
+
+        result.Result.Should().BeEquivalentTo(new Image(expectedLinkText, expectedLinkUrl, expectedTitleText));
+    }
     
 }
