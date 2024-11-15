@@ -1,3 +1,4 @@
+using EasyParsing.Dsl;
 using EasyParsing.Parsers;
 using FluentAssertions;
 
@@ -63,7 +64,8 @@ public class BasicParserTests
     public Task UntilTextParser_Should_Success()
     {
         var context = ParsingContext.FromString("my_json_prop :delimiter: 1234");
-        var parser = new UntilTextParser(":delimiter:", false);
+        var innerParser = Parse.ManySatisfy(c => char.IsLetterOrDigit(c) || char.IsWhiteSpace(c) || c == '_');
+        var parser = new UntilTextParser<string>(innerParser, ":delimiter:", skipDelimiter: false);
         
         var result = parser.Parse(context);
         
@@ -82,7 +84,8 @@ public class BasicParserTests
     public Task UntilTextParserTakingAfterMatch_Should_Success()
     {
         var context = ParsingContext.FromString("my_json_prop :delimiter: 1234");
-        var parser = new UntilTextParser(":delimiter:");
+        var innerParser = Parse.ManySatisfy(c => char.IsLetterOrDigit(c) || c == '_' || char.IsWhiteSpace(c));
+        var parser = new UntilTextParser<string>(innerParser, ":delimiter:", skipDelimiter: true);
         
         var result = parser.Parse(context);
         

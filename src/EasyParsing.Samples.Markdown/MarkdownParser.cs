@@ -1,4 +1,3 @@
-using System.Reflection.Metadata.Ecma335;
 using EasyParsing.Dsl;
 using EasyParsing.Dsl.Linq;
 using EasyParsing.Parsers;
@@ -48,9 +47,27 @@ public class MarkdownParser
         from url in Between(OneChar('('), UrlParser, OneChar(')'))
         select new Image(label.Item, url.Item);
 
-    internal IParser<Bold> BoldParser =>
-        from _ in StringPrefix("**")
-        from text in Between(OneChar('*'), ManySatisfy(c => LettersDigitsOrSpaces(c) || c == '*'), OneChar('*'))
-        select new Bold(new RawText(text.Item));
+    internal static IParser<Bold> BoldParser =>
+        from prefix in StringPrefix("**") | StringPrefix("__") 
+        from text in RichTextParser.Until(prefix)
+        select new Bold(text);
+
+    internal static IParser<Italic> ItalicParser =>
+        from prefix in StringPrefix("*") | StringPrefix("_") 
+        from text in RichTextParser.Until(StringPrefix(prefix))
+        select new Italic(text.Item1);
+
+    internal static IParser<RawText> RawTextParser =>
+        ManySatisfy(c => c != '\r' && c != '\n').Select(s => new RawText(s));
+    
+    internal static IParser<RichText[]> RichTextParser =>
+        Many(
+            LinkParser.Cast<Link, RichText>()
+            | ImageParser.Cast<Image, RichText>()
+            | BoldParser.Cast<Bold, RichText>()
+            | ItalicParser.Cast<Italic, RichText>()
+            | RawTextParser.Cast<RawText, RichText>()
+        )
+        ;
 
 }
