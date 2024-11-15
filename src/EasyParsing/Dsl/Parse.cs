@@ -5,6 +5,8 @@ namespace EasyParsing.Dsl;
 
 public static partial class Parse
 {
+    public static IParser<string> StringPrefix(string text) => new StringPrefixParser(text);
+    
     public static IParser<Option<T>> Optionnal<T>(this IParser<T> parser) => new OptionnalParser<T>(parser);
     
     public static IParser<string> SkipSpaces() => new SkipSpacesParser();
