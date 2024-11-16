@@ -1,8 +1,15 @@
 namespace EasyParsing.Parsers;
 
+/// <summary>
+/// Parses consecutive whitespace characters from the input string.
+/// </summary>
+/// <remarks>
+/// SpacesParser identifies sequences of whitespace characters (spaces, tabs, etc.) and can be configured to fail if no spaces are found.
+/// </remarks>
 public class SpacesParser(bool failIfNothingMatched) : ParserBase<string>
 {
-    public override ParsingResult<string> Parse(ParsingContext context)
+    /// <inheritdoc />
+    public override IParsingResult<string> Parse(ParsingContext context)
     {
         var span = context.Remaining.Span;
         var index = 0;

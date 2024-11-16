@@ -10,7 +10,7 @@ public class SeparatedByParserTests
     public Task TwoItemsSepByComma_Should_Success()
     {
         var context = ParsingContext.FromString("abcde,12345");
-        var parser = new SeparatedByParser<string, string>(Parse.ManyLettersOrDigits(), Parse.OneChar(','));
+        var parser = new SeparatedByParser<string, string>(Parse.ManyLettersOrDigits(), Parse.OneCharText(','));
         
         var result = parser.Parse(context);
         
@@ -23,7 +23,7 @@ public class SeparatedByParserTests
     public Task FiveItemsSepByComma_Should_Success()
     {
         var context = ParsingContext.FromString("abcde,12345,popopo,lalala,98765");
-        var parser = new SeparatedByParser<string, string>(Parse.ManyLettersOrDigits(), Parse.OneChar(','));
+        var parser = new SeparatedByParser<string, string>(Parse.ManyLettersOrDigits(), Parse.OneCharText(','));
         
         var result = parser.Parse(context);
         
@@ -36,7 +36,7 @@ public class SeparatedByParserTests
     public Task FiveItemsSepByCommaEndingByComma_Should_SuccessAndLeftLastCommaInContext()
     {
         var context = ParsingContext.FromString("abcde,12345,popopo,lalala,98765,");
-        var parser = new SeparatedByParser<string, string>(Parse.ManyLettersOrDigits(), Parse.OneChar(','));
+        var parser = new SeparatedByParser<string, string>(Parse.ManyLettersOrDigits(), Parse.OneCharText(','));
         
         var result = parser.Parse(context);
         
@@ -50,7 +50,7 @@ public class SeparatedByParserTests
     public Task FiveItemsSepByCommaEndingByCommaWhenMatchTailingSeparator_Should_SuccessAndLeftLastCommaInContext()
     {
         var context = ParsingContext.FromString("abcde,12345,popopo,lalala,98765,");
-        var parser = new SeparatedByParser<string, string>(Parse.ManyLettersOrDigits(), Parse.OneChar(','), matchTailingSeparator: true);
+        var parser = new SeparatedByParser<string, string>(Parse.ManyLettersOrDigits(), Parse.OneCharText(','), matchTailingSeparator: true);
         
         var result = parser.Parse(context);
         

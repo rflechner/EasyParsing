@@ -4,16 +4,21 @@ namespace EasyParsing.Parsers;
 /// Accumulate results a parser while success.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class ManyParser<T> : ParserBase<T[]>
+public class ManyParser<T> : ParserBase<IEnumerable<T>>
 {
     private readonly IParser<T> parser;
 
+    /// <summary>
+    /// Accumulates the results of a specified parser as long as it successfully parses the input.
+    /// </summary>
+    /// <param name="parser">The parser to accumulate results.</param>
     public ManyParser(IParser<T> parser)
     {
         this.parser = parser;
     }
 
-    public override ParsingResult<T[]> Parse(ParsingContext context)
+    /// <inheritdoc />
+    public override IParsingResult<IEnumerable<T>> Parse(ParsingContext context)
     {
         var results = new Queue<T>();
         var currentContext = context;

@@ -14,7 +14,7 @@ public class UntilParserTests
         var context = ParsingContext.FromString("ab*cd**12345_end");
         var parser =
             ManySatisfy(c => char.IsLetterOrDigit(c) || c == '*')
-                .Until(StringPrefix("**") | StringPrefix("__"));
+                .Until(StringMatch("**") | StringMatch("__"));
         
         var result = parser.Parse(context);
         
@@ -29,7 +29,7 @@ public class UntilParserTests
         var context = ParsingContext.FromString("ab*cd**12345_end");
         var parser =
             from letters in ManySatisfy(c => char.IsLetterOrDigit(c) || c == '*')
-                .Until(StringPrefix("**") | StringPrefix("__"))
+                .Until(StringMatch("**") | StringMatch("__"))
             from digits in ManySatisfy(char.IsDigit)
             select new
             {

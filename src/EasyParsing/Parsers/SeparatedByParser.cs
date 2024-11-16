@@ -1,11 +1,22 @@
 namespace EasyParsing.Parsers;
 
+/// <summary>
+/// Parses a sequence of items separated by a specified separator.
+/// </summary>
+/// <typeparam name="T">The type of the items to be parsed.</typeparam>
+/// <typeparam name="TSeparator">The type of the separator to be used.</typeparam>
 public class SeparatedByParser<T, TSeparator> : ParserBase<T[]>
 {
     private readonly IParser<T> itemParser;
     private readonly IParser<TSeparator> separatorParser;
     private readonly bool matchTailingSeparator;
 
+    /// <summary>
+    /// Create parser of items separated by a specified separator.
+    /// </summary>
+    /// <param name="itemParser">Items parser</param>
+    /// <param name="separatorParser">Separator parser</param>
+    /// <param name="matchTailingSeparator">Defines if trailing separator must be consumed</param>
     public SeparatedByParser(IParser<T> itemParser, IParser<TSeparator> separatorParser, bool matchTailingSeparator = false)
     {
         this.itemParser = itemParser;
@@ -13,7 +24,8 @@ public class SeparatedByParser<T, TSeparator> : ParserBase<T[]>
         this.matchTailingSeparator = matchTailingSeparator;
     }
 
-    public override ParsingResult<T[]> Parse(ParsingContext context)
+    /// <inheritdoc />
+    public override IParsingResult<T[]> Parse(ParsingContext context)
     {
         var queue = new Queue<T>();
 

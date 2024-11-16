@@ -12,14 +12,25 @@ public class BetweenParser<TLeft, T3, TRight> : ParserBase<(TLeft Before, T3 Ite
     private readonly IParser<T3> middle;
     private readonly IParser<TRight> right;
 
+    /// <summary>
+    /// Parse text between two other matched parsings.
+    /// </summary>
+    /// <param name="left">The parser to match before the item.</param>
+    /// <param name="middle">The parser to match the item.</param>
+    /// <param name="right">The parser to match after the item.</param>
     public BetweenParser(IParser<TLeft> left, IParser<T3> middle, IParser<TRight> right)
     {
         this.left = left;
         this.right = right;
         this.middle = middle;
     }
-    
-    public override ParsingResult<(TLeft Before, T3 Item, TRight After)> Parse(ParsingContext context)
+
+    /// <summary>
+    /// Parses text between two other matched parsings.
+    /// </summary>
+    /// <param name="context">The parsing context containing the text to be parsed and its current parsing position.</param>
+    /// <returns>A result indicating the success or failure of the parsing operation, including the text parsed by each of the three parsers.</returns>
+    public override IParsingResult<(TLeft Before, T3 Item, TRight After)> Parse(ParsingContext context)
     {
         var leftResult = left.Parse(context);
         if (!leftResult.Success || leftResult.Result == null)

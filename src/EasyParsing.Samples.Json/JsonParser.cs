@@ -9,13 +9,13 @@ namespace EasyParsing.Samples.Json;
 public class JsonParser
 {
     
-    internal static readonly IParser<string> StartObject = OneChar('{') >> SkipSpaces();
-    internal static readonly IParser<string> EndObject = OneChar('}') >> SkipSpaces();
+    internal static readonly IParser<string> StartObject = OneCharText('{') >> SkipSpaces();
+    internal static readonly IParser<string> EndObject = OneCharText('}') >> SkipSpaces();
     
-    internal static readonly IParser<string> StartArray = OneChar('[') >> SkipSpaces();
-    internal static readonly IParser<string> EndArray = OneChar(']') >> SkipSpaces();
+    internal static readonly IParser<string> StartArray = OneCharText('[') >> SkipSpaces();
+    internal static readonly IParser<string> EndArray = OneCharText(']') >> SkipSpaces();
     
-    internal static readonly IParser<string> KeyValueSeparator = OneChar(':') >> SkipSpaces();
+    internal static readonly IParser<string> KeyValueSeparator = OneCharText(':') >> SkipSpaces();
     
     internal static readonly IParser<JsonStringValue> JsonStringValueParser =
         from str in QuotedTextParser 
@@ -33,7 +33,7 @@ public class JsonParser
 
     internal static readonly IParser<JsonDecimalValue> JsonDecimalValueParser =
         from abs in ManySatisfy(char.IsDigit)
-        from point in OneChar('.')
+        from point in OneCharText('.')
         from rel in ManySatisfy(char.IsDigit)
         select new JsonDecimalValue(decimal.Parse($"{abs}.{rel}", NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture));
 
@@ -48,31 +48,31 @@ public class JsonParser
         select new JsonProperty(key, value);
 
     internal static readonly IParser<JsonProperty[]> PropertiesListParser = 
-        PropertyAssignParser.SeparatedBy(SkipSpaces() >> OneChar(',') >> SkipSpaces());
+        PropertyAssignParser.SeparatedBy(SkipSpaces() >> OneCharText(',') >> SkipSpaces());
     
     internal static readonly IParser<JsonObject> JsonObjectParser = 
         Between(StartObject, PropertiesListParser,  SkipSpaces() >> EndObject)
-            .Map(i => new JsonObject(i.Item.ToDictionary(p => p.Name, p => p.Value)));
+            .Select(i => new JsonObject(i.Item.ToDictionary(p => p.Name, p => p.Value)));
     
-    internal static readonly IParser<JsonValue[]> ItemsParser = ValueParser.SeparatedBy(SkipSpaces() >> OneChar(',') >> SkipSpaces());
+    internal static readonly IParser<JsonValue[]> ItemsParser = ValueParser.SeparatedBy(SkipSpaces() >> OneCharText(',') >> SkipSpaces());
 
     // When the parsers depend recursively on each other,
     // building them on the fly by exposing them with a function is a solution for building the global parser.
     internal static IParser<JsonArray> JsonArrayParser =>
             Between(StartArray, ItemsParser,  SkipSpaces() >> EndArray)
-            .Map(i => new JsonArray(i.Item));
+            .Select(i => new JsonArray(i.Item));
 
     internal static IParser<JsonValue> ValueParser =>
-            JsonStringValueParser.Cast<JsonStringValue, JsonValue>()
-            | JsonBoolValueParser.Cast<JsonBoolValue, JsonValue>()
-            | JsonDecimalValueParser.Cast<JsonDecimalValue, JsonValue>()
-            | JsonLongValueParser.Cast<JsonLongValue, JsonValue>()
-            | JsonObjectParser.Cast<JsonObject, JsonValue>()
-            | JsonArrayParser.Cast<JsonArray, JsonValue>();
+        JsonStringValueParser.Cast<JsonStringValue, JsonValue>()
+        | JsonBoolValueParser
+        | JsonDecimalValueParser
+        | JsonLongValueParser
+        | JsonObjectParser
+        | JsonArrayParser;
 
     public static JsonValue ParseJson(string text)
     {
-        ParsingResult<JsonValue> result = ValueParser.Parse(text);
+        var result = ValueParser.Parse(text);
         
         if (!result.Success)
             throw new JsonParsingException(result.FailureMessage);

@@ -1,4 +1,5 @@
 using EasyParsing.Dsl;
+using EasyParsing.Dsl.Linq;
 using EasyParsing.Parsers;
 using FluentAssertions;
 
@@ -13,7 +14,7 @@ public class BasicParserTests
         var context = ParsingContext.FromString("hello");
         var parser = new OneCharParser('a');
         
-        ParsingResult<char> result = parser.Parse(context);
+        IParsingResult<char> result = parser.Parse(context);
 
         result.Success.Should().BeFalse();
         result.Result.Should().Be(char.MinValue);
@@ -29,7 +30,7 @@ public class BasicParserTests
         var context = ParsingContext.FromString("hello");
         var parser = new OneCharParser('h');
         
-        ParsingResult<char> result = parser.Parse(context);
+        IParsingResult<char> result = parser.Parse(context);
 
         result.Success.Should().BeTrue();
         result.Result.Should().Be('h');
@@ -48,7 +49,7 @@ public class BasicParserTests
 
         var combineParser = hLetterParser
             .Combine(eLetterParser)
-            .Map(tuple => new string([tuple.Item1, tuple.Item2]));
+            .Select(tuple => new string([tuple.Item1, tuple.Item2]));
 
         var result = combineParser.Parse(context);
         

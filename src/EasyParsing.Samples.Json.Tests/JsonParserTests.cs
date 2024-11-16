@@ -1,4 +1,3 @@
-using EasyParsing.Dsl;
 using EasyParsing.Dsl.Linq;
 using EasyParsing.Samples.Json;
 using FluentAssertions;
@@ -14,7 +13,7 @@ public class JsonParserTests
     public void ParseStringFollowedByChar_Should_Success()
     {
         var strParser = QuotedTextParser;// >> SkipSpaces();
-        var keyValueSeparator = OneChar(':') >> SkipSpaces();
+        var keyValueSeparator = OneCharText(':') >> SkipSpaces();
         
         var parser = 
             from key in strParser
@@ -173,9 +172,9 @@ public class JsonParserTests
             new Dictionary<string, JsonValue>
             {
                 { "popo", new JsonStringValue("hello, fine ?") },
-                {"age", new JsonLongValue(36) },
-                {"size_in_cm", new JsonDecimalValue(1.78m) },
-                {"activated", new JsonBoolValue(true) },   
+                { "age", new JsonLongValue(36) },
+                { "size_in_cm", new JsonDecimalValue(1.78m) },
+                { "activated", new JsonBoolValue(true) },   
             }));
     }
     
@@ -254,7 +253,8 @@ public class JsonParserTests
                                 },
                             })
                             
-                        ]) }
+                        ])
+                    }
                 })
             ]));
     }

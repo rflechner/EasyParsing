@@ -7,4 +7,8 @@
         <Description>Parser combinator for C#</Description>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DocumentationFile>bin\Debug\EasyParsing.xml</DocumentationFile>
+    </PropertyGroup>
+
 </Project>

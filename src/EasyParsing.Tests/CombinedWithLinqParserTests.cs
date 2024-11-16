@@ -61,7 +61,7 @@ public class CombinedWithLinqParserTests
     public void ManyParser_Should_Success()
     {
         var letterOrDigitParser = new SatisfyParser(char.IsLetterOrDigit);
-        var nameParser = new ManyParser<char>(letterOrDigitParser).Map(chars => new string(chars));
+        var nameParser = new ManyParser<char>(letterOrDigitParser).Select(chars => new string(chars.ToArray()));
 
         var parsingResult = nameParser.Parse(ParsingContext.FromString("abcde!!"));
 
@@ -85,7 +85,7 @@ public class CombinedWithLinqParserTests
     {
         var quoteParser = new OneCharParser('\'');
         var letterOrDigitParser = new SatisfyParser(char.IsLetterOrDigit);
-        var nameParser = new ManyParser<char>(letterOrDigitParser).Map(chars => new string(chars));
+        var nameParser = new ManyParser<char>(letterOrDigitParser).Select(chars => new string(chars.ToArray()));
 
         var betweenParser = new BetweenParser<char, string, char>(quoteParser, nameParser, quoteParser);
 
@@ -101,10 +101,10 @@ public class CombinedWithLinqParserTests
     [Test]
     public void ParseJsonWithOnlyOnePropertyAsInt_Should_Success()
     {
-        var startObject = OneChar('{') >> SkipSpaces();
-        var endObject = OneChar('}') >> SkipSpaces();
+        var startObject = OneCharText('{') >> SkipSpaces();
+        var endObject = OneCharText('}') >> SkipSpaces();
         var keyName = ManyLettersOrDigits() >> SkipSpaces();
-        var keyValueSeparator = OneChar(':') >> SkipSpaces();
+        var keyValueSeparator = OneCharText(':') >> SkipSpaces();
         var valueParser = ManyLettersOrDigits() >> SkipSpaces();
         
         var jsonParser = 
@@ -130,10 +130,10 @@ public class CombinedWithLinqParserTests
     [Test]
     public void ParseJsonWithManyIntProperties_Should_Success()
     {
-        var startObject = OneChar('{') >> SkipSpaces();
-        var endObject = OneChar('}') >> SkipSpaces();
+        var startObject = OneCharText('{') >> SkipSpaces();
+        var endObject = OneCharText('}') >> SkipSpaces();
         var keyName = ManySatisfy(c => char.IsLetterOrDigit(c) || c == '_') >> SkipSpaces();
-        var keyValueSeparator = OneChar(':') >> SkipSpaces();
+        var keyValueSeparator = OneCharText(':') >> SkipSpaces();
         var valueParser = ManyLettersOrDigits() >> SkipSpaces();
         
         var propertyAssign = 
@@ -142,7 +142,7 @@ public class CombinedWithLinqParserTests
             from value in valueParser
             select (PropertyName: key, PropertyValue: value);
 
-        IParser<(string PropertyName, string PropertyValue)[]> propertiesListParser = propertyAssign.SeparatedBy(OneChar(',') >> SkipSpaces());
+        IParser<(string PropertyName, string PropertyValue)[]> propertiesListParser = propertyAssign.SeparatedBy(OneCharText(',') >> SkipSpaces());
 
         var jsonParser = new BetweenParser<string, (string PropertyName, string PropertyValue)[], string>(startObject, propertiesListParser, endObject);
         
@@ -165,8 +165,8 @@ public class CombinedWithLinqParserTests
     [TestCase("\"hello world I am \\\"Mike\\\" !\"", "", true)]
     public void QuotedString_ShouldBe_Expected(string text, string remaining, bool shouldSuccess)
     {
-        var doubleQuote = OneChar('"');
-        var simpleQuote = OneChar('\'');
+        var doubleQuote = OneCharText('"');
+        var simpleQuote = OneCharText('\'');
         
         IParser<string> ContentParser (char quoteChar)
         {

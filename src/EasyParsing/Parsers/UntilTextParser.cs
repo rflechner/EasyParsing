@@ -1,8 +1,13 @@
 namespace EasyParsing.Parsers;
 
+/// <summary>
+/// A parser that processes text until a specified delimiter is found and then optionally skips the delimiter.
+/// </summary>
+/// <typeparam name="T">The type of the parsing result.</typeparam>
 public class UntilTextParser<T>(IParser<T> innerParser, string input, bool skipDelimiter) : ParserBase<T>
 {
-    public override ParsingResult<T> Parse(ParsingContext context)
+    /// <inheritdoc />
+    public override IParsingResult<T> Parse(ParsingContext context)
     {
         var span = context.Remaining;
         var index = span.Span.IndexOf(input);
