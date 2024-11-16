@@ -1,6 +1,6 @@
 namespace EasyParsing.Parsers;
 
-public class SkipSpacesParser : ParserBase<string>
+public class SpacesParser(bool failIfNothingMatched) : ParserBase<string>
 {
     public override ParsingResult<string> Parse(ParsingContext context)
     {
@@ -14,7 +14,12 @@ public class SkipSpacesParser : ParserBase<string>
             index++;
         }
 
-        if (index == 0) return Success(context, string.Empty);
+        if (index == 0)
+        {
+            return failIfNothingMatched 
+                ? Fail(context, "No spaces matched") 
+                : Success(context, string.Empty);
+        }
 
         var spaces = span[.. index];
 

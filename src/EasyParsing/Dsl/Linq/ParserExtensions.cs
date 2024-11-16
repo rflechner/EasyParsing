@@ -19,11 +19,6 @@ public static class ParserExtensions
         return new SelectParser<TSource, TResult>(source, selector);
     }
 
-    // public static ParserBase<T> Where<T>(this ParserBase<T> source, Func<T, bool> predicate)
-    // {
-    //     throw new NotImplementedException();
-    // }
-    
     public static IParser<T> Where<T>(this IParser<T> source, Func<T, bool> predicate)
     {
         return new WhereParser<T>(source, predicate);

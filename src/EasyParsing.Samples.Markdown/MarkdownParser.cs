@@ -57,17 +57,37 @@ public class MarkdownParser
         from text in RichTextParser.Until(StringPrefix(prefix))
         select new Italic(text.Item1);
 
-    internal static IParser<RawText> RawTextParser =>
-        ManySatisfy(c => c != '\r' && c != '\n').Select(s => new RawText(s));
-    
+    // internal static IParser<RichText> RawTextWordParser =>
+    //     ManySatisfy(c => !IsInlineSpace(c) && !char.IsPunctuation(c))
+    //         .Select(s => new RawText(s))
+    //         .Cast<RawText, RichText>()
+    //     | RichTextParser
+    //     | ManySatisfy(c => !IsInlineSpace(c)).Select(s => new RawText(s)).Cast<RawText, RichText>()
+    //     ;
+
+    private static bool IsInlineSpace(char c) => c is ' ' or '\t';
+
+    internal static RawText Merge(RawText[] texts) => 
+        new(string.Join(" ", texts.Select(t => t.Content)));
+
+    internal static IParser<RichText> RawTextParser =>
+        SpecialTextElementParser
+        | ManySatisfy(c => !IsInlineSpace(c) && !char.IsPunctuation(c))
+            .Select(RichText (s) => new RawText(s));
+
+    internal static IParser<RichText> SpecialTextElementParser =>
+        LinkParser.Cast<Link, RichText>()
+        | ImageParser.Cast<Image, RichText>()
+        | BoldParser.Cast<Bold, RichText>()
+        | ItalicParser.Cast<Italic, RichText>();
+        
     internal static IParser<RichText[]> RichTextParser =>
         Many(
-            LinkParser.Cast<Link, RichText>()
-            | ImageParser.Cast<Image, RichText>()
-            | BoldParser.Cast<Bold, RichText>()
-            | ItalicParser.Cast<Italic, RichText>()
-            | RawTextParser.Cast<RawText, RichText>()
+            SpecialTextElementParser
+            // | RawTextParser.Cast<RawText, RichText>()
+            | RawTextParser
         )
+        
         ;
 
 }

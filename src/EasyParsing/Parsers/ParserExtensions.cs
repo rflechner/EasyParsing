@@ -6,6 +6,11 @@ public static class ParserExtensions
     {
         return new CombineParser<TIn1, TIn2>(left, right);
     }
+
+    public static IParser<TIn1> ThenIgnore<TIn1, TIn2>(this IParser<TIn1> left, IParser<TIn2> right)
+    {
+        return new CombineParser<TIn1, TIn2>(left, right).Map(r => r.Item1);
+    }
     
     public static IParser<TOut> Map<TIn, TOut>(this IParser<TIn> input, Func<TIn, TOut> mapper)
     {

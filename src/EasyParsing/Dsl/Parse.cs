@@ -9,7 +9,9 @@ public static partial class Parse
     
     public static IParser<Option<T>> Optionnal<T>(this IParser<T> parser) => new OptionnalParser<T>(parser);
     
-    public static IParser<string> SkipSpaces() => new SkipSpacesParser();
+    public static IParser<string> SkipSpaces() => new SpacesParser(failIfNothingMatched: false);
+    
+    public static IParser<string> Spaces() => new SpacesParser(failIfNothingMatched: true);
     
     public static IParser<string> OneChar(char c) => new OneCharParser(c).AsString();
     
