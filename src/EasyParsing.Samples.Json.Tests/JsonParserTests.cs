@@ -1,4 +1,5 @@
 using EasyParsing.Dsl.Linq;
+using EasyParsing.Samples.Json;
 using FluentAssertions;
 using NUnit.Framework;
 using static EasyParsing.Dsl.Parse;
@@ -11,8 +12,8 @@ public class JsonParserTests
     [Test]
     public void ParseStringFollowedByChar_Should_Success()
     {
-        var strParser = JsonParser.StringParser;// >> SkipSpaces();
-        var keyValueSeparator = OneChar(':') >> SkipSpaces();
+        var strParser = QuotedTextParser;// >> SkipSpaces();
+        var keyValueSeparator = OneCharText(':') >> SkipSpaces();
         
         var parser = 
             from key in strParser
@@ -45,7 +46,7 @@ public class JsonParserTests
     [TestCase("\"hello world ", "\"hello world ", false)]
     public void QuotedString_ShouldBe_Expected(string text, string remaining, bool shouldSuccess)
     {
-        var parser = JsonParser.StringParser >> SkipSpaces();
+        var parser = QuotedTextParser >> SkipSpaces();
         
         var result = parser.Parse(text);
 
@@ -171,9 +172,9 @@ public class JsonParserTests
             new Dictionary<string, JsonValue>
             {
                 { "popo", new JsonStringValue("hello, fine ?") },
-                {"age", new JsonLongValue(36) },
-                {"size_in_cm", new JsonDecimalValue(1.78m) },
-                {"activated", new JsonBoolValue(true) },   
+                { "age", new JsonLongValue(36) },
+                { "size_in_cm", new JsonDecimalValue(1.78m) },
+                { "activated", new JsonBoolValue(true) },   
             }));
     }
     
@@ -252,7 +253,8 @@ public class JsonParserTests
                                 },
                             })
                             
-                        ]) }
+                        ])
+                    }
                 })
             ]));
     }

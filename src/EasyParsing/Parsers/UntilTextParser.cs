@@ -1,17 +1,13 @@
 namespace EasyParsing.Parsers;
 
-public class UntilTextParser : ParserBase<string>
+/// <summary>
+/// A parser that processes text until a specified delimiter is found and then optionally skips the delimiter.
+/// </summary>
+/// <typeparam name="T">The type of the parsing result.</typeparam>
+public class UntilTextParser<T>(IParser<T> innerParser, string input, bool skipDelimiter) : ParserBase<T>
 {
-    private readonly string input;
-    private readonly bool skipMatch;
-
-    public UntilTextParser(string input, bool skipMatch = true)
-    {
-        this.input = input;
-        this.skipMatch = skipMatch;
-    }
-
-    public override ParsingResult<string> Parse(ParsingContext context)
+    /// <inheritdoc />
+    public override IParsingResult<T> Parse(ParsingContext context)
     {
         var span = context.Remaining;
         var index = span.Span.IndexOf(input);
@@ -19,15 +15,23 @@ public class UntilTextParser : ParserBase<string>
             return Fail(context, $"{input} not found");
 
         var text = span[.. index];
-        ReadOnlyMemory<char> rest;
-        if (skipMatch)
-        {
-            rest = span[(text.Length + input.Length) ..];
-            return Success(new ParsingContext(rest, context.Position.ForwardMemory(span[.. (index-1 + text.Length-1)])), text.ToString());
-        }
 
-        rest = span[text.Length ..];
+        var subjectContext = context with
+        {
+            Position = TextPosition.Zero,
+            Remaining = text
+        };
         
-        return Success(new ParsingContext(rest, context.Position.ForwardMemory(text)), text.ToString());
+        var innerResult = innerParser.Parse(subjectContext);
+        if (!innerResult.Success || innerResult.Result == null)
+            return Fail(context, innerResult.FailureMessage!);
+
+        var result = innerResult.Result;
+
+        var nextOffset = skipDelimiter ? text.Length + input.Length : text.Length;
+
+        var nextContext = context.Forward(nextOffset);
+        
+        return Success(nextContext, result);
     }
 }

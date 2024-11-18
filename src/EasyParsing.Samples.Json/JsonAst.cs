@@ -1,4 +1,4 @@
-namespace EasyParsing.Samples;
+namespace EasyParsing.Samples.Json;
 
 public record JsonProperty(string Name, JsonValue Value);
     

@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    
+    <ItemGroup>
+      <ProjectReference Include="..\EasyParsing\EasyParsing.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <InternalsVisibleTo Include="EasyParsing.Samples.Json.Tests" />
+    </ItemGroup>
+
+</Project>

@@ -9,9 +9,22 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyParsing.Tests", "EasyPa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{1FC2AC0D-6B8B-4C47-9BF6-A4572492732A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyParsing.Samples", "EasyParsing.Samples\EasyParsing.Samples.csproj", "{7817DD08-367A-477F-AFF1-C7630E9A18C9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyParsing.Samples.Json", "EasyParsing.Samples.Json\EasyParsing.Samples.Json.csproj", "{7817DD08-367A-477F-AFF1-C7630E9A18C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyParsing.Samples.Tests", "EasyParsing.Samples.Tests\EasyParsing.Samples.Tests.csproj", "{052C67FA-F1CD-483A-A0CE-559CB2454621}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyParsing.Samples.Json.Tests", "EasyParsing.Samples.Json.Tests\EasyParsing.Samples.Json.Tests.csproj", "{052C67FA-F1CD-483A-A0CE-559CB2454621}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "JsonParser", "JsonParser", "{C8C6DAFF-8D16-4C8C-BEBA-A5EA71A28B44}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MarkdownParser", "MarkdownParser", "{944407E1-489E-4EB6-92CF-386B23F8A201}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution", "solution", "{C61A21C0-EAD2-4DFF-8EE3-F3C2A2605639}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.build.props = Directory.build.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyParsing.Samples.Markdown", "EasyParsing.Samples.Markdown\EasyParsing.Samples.Markdown.csproj", "{441EABE6-97B6-40B1-A02D-2ED1CD624C79}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyParsing.Samples.Markdown.Tests", "EasyParsing.Samples.Markdown.Tests\EasyParsing.Samples.Markdown.Tests.csproj", "{EE69C090-3118-42B8-9C04-9686FD9855F4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,9 +51,21 @@ Global
 		{052C67FA-F1CD-483A-A0CE-559CB2454621}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{052C67FA-F1CD-483A-A0CE-559CB2454621}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{052C67FA-F1CD-483A-A0CE-559CB2454621}.Release|Any CPU.Build.0 = Release|Any CPU
+		{441EABE6-97B6-40B1-A02D-2ED1CD624C79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{441EABE6-97B6-40B1-A02D-2ED1CD624C79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{441EABE6-97B6-40B1-A02D-2ED1CD624C79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{441EABE6-97B6-40B1-A02D-2ED1CD624C79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE69C090-3118-42B8-9C04-9686FD9855F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE69C090-3118-42B8-9C04-9686FD9855F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE69C090-3118-42B8-9C04-9686FD9855F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE69C090-3118-42B8-9C04-9686FD9855F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{7817DD08-367A-477F-AFF1-C7630E9A18C9} = {1FC2AC0D-6B8B-4C47-9BF6-A4572492732A}
-		{052C67FA-F1CD-483A-A0CE-559CB2454621} = {1FC2AC0D-6B8B-4C47-9BF6-A4572492732A}
+		{C8C6DAFF-8D16-4C8C-BEBA-A5EA71A28B44} = {1FC2AC0D-6B8B-4C47-9BF6-A4572492732A}
+		{7817DD08-367A-477F-AFF1-C7630E9A18C9} = {C8C6DAFF-8D16-4C8C-BEBA-A5EA71A28B44}
+		{052C67FA-F1CD-483A-A0CE-559CB2454621} = {C8C6DAFF-8D16-4C8C-BEBA-A5EA71A28B44}
+		{944407E1-489E-4EB6-92CF-386B23F8A201} = {1FC2AC0D-6B8B-4C47-9BF6-A4572492732A}
+		{441EABE6-97B6-40B1-A02D-2ED1CD624C79} = {944407E1-489E-4EB6-92CF-386B23F8A201}
+		{EE69C090-3118-42B8-9C04-9686FD9855F4} = {944407E1-489E-4EB6-92CF-386B23F8A201}
 	EndGlobalSection
 EndGlobal

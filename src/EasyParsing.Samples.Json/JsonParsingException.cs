@@ -1,4 +1,4 @@
-namespace EasyParsing.Samples;
+namespace EasyParsing.Samples.Json;
 
 public class JsonParsingException : Exception
 {

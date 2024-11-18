@@ -7,12 +7,17 @@ public class SatisfyParser : ParserBase<char>
 {
     private readonly Func<char, bool> condition;
 
+    /// <summary>
+    /// Parses a single character that satisfies a given condition.
+    /// </summary>
+    /// <param name="condition">The condition to satisfy.</param>
     public SatisfyParser(Func<char, bool> condition)
     {
         this.condition = condition;
     }
     
-    public override ParsingResult<char> Parse(ParsingContext context)
+    /// <inheritdoc />
+    public override IParsingResult<char> Parse(ParsingContext context)
     {
         if (context.Remaining.Length <= 0)
             return Fail(context, "End of stream");

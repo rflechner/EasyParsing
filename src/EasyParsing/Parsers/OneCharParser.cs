@@ -7,12 +7,17 @@ public class OneCharParser : ParserBase<char>
 {
     private readonly char c;
 
+    /// <summary>
+    /// Represents a parser that matches a specific char within an input.
+    /// </summary>
+    /// <param name="c">The char to match.</param>
     public OneCharParser(char c)
     {
         this.c = c;
     }
 
-    public override ParsingResult<char> Parse(ParsingContext context)
+    /// <inheritdoc />
+    public override IParsingResult<char> Parse(ParsingContext context)
     {
         var span = context.Remaining.Span;
         if (span.Length < 1)

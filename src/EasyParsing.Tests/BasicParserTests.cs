@@ -1,3 +1,5 @@
+using EasyParsing.Dsl;
+using EasyParsing.Dsl.Linq;
 using EasyParsing.Parsers;
 using FluentAssertions;
 
@@ -7,37 +9,39 @@ public class BasicParserTests
 {
     
     [Test]
-    public async Task OneCharParser_Should_Fail()
+    public Task OneCharParser_Should_Fail()
     {
         var context = ParsingContext.FromString("hello");
         var parser = new OneCharParser('a');
         
-        ParsingResult<char> result = parser.Parse(context);
+        IParsingResult<char> result = parser.Parse(context);
 
         result.Success.Should().BeFalse();
         result.Result.Should().Be(char.MinValue);
         result.Context.Position.Offset.Should().Be(0);
         result.Context.Position.Line.Should().Be(0);
         result.Context.Position.Column.Should().Be(0);
+        return Task.CompletedTask;
     }
     
     [Test]
-    public async Task OneCharParser_Should_Success()
+    public Task OneCharParser_Should_Success()
     {
         var context = ParsingContext.FromString("hello");
         var parser = new OneCharParser('h');
         
-        ParsingResult<char> result = parser.Parse(context);
+        IParsingResult<char> result = parser.Parse(context);
 
         result.Success.Should().BeTrue();
         result.Result.Should().Be('h');
         result.Context.Position.Offset.Should().Be(1);
         result.Context.Position.Line.Should().Be(0);
         result.Context.Position.Column.Should().Be(1);
+        return Task.CompletedTask;
     }
     
     [Test]
-    public async Task CombineOneCharParsers_Should_Success()
+    public Task CombineOneCharParsers_Should_Success()
     {
         var context = ParsingContext.FromString("hello");
         var hLetterParser = new OneCharParser('h');
@@ -45,7 +49,7 @@ public class BasicParserTests
 
         var combineParser = hLetterParser
             .Combine(eLetterParser)
-            .Map(tuple => new string([tuple.Item1, tuple.Item2]));
+            .Select(tuple => new string([tuple.Item1, tuple.Item2]));
 
         var result = combineParser.Parse(context);
         
@@ -54,13 +58,15 @@ public class BasicParserTests
         result.Context.Position.Offset.Should().Be(2);
         result.Context.Position.Line.Should().Be(0);
         result.Context.Position.Column.Should().Be(2);
+        return Task.CompletedTask;
     }
     
     [Test]
-    public async Task UntilTextParser_Should_Success()
+    public Task UntilTextParser_Should_Success()
     {
         var context = ParsingContext.FromString("my_json_prop :delimiter: 1234");
-        var parser = new UntilTextParser(":delimiter:", false);
+        var innerParser = Parse.ManySatisfy(c => char.IsLetterOrDigit(c) || char.IsWhiteSpace(c) || c == '_');
+        var parser = new UntilTextParser<string>(innerParser, ":delimiter:", skipDelimiter: false);
         
         var result = parser.Parse(context);
         
@@ -72,13 +78,15 @@ public class BasicParserTests
         result.Context.Position.Offset.Should().Be(13);
         result.Context.Position.Line.Should().Be(0);
         result.Context.Position.Column.Should().Be(13);
+        return Task.CompletedTask;
     }
     
     [Test]
-    public async Task UntilTextParserTakingAfterMatch_Should_Success()
+    public Task UntilTextParserTakingAfterMatch_Should_Success()
     {
         var context = ParsingContext.FromString("my_json_prop :delimiter: 1234");
-        var parser = new UntilTextParser(":delimiter:");
+        var innerParser = Parse.ManySatisfy(c => char.IsLetterOrDigit(c) || c == '_' || char.IsWhiteSpace(c));
+        var parser = new UntilTextParser<string>(innerParser, ":delimiter:", skipDelimiter: true);
         
         var result = parser.Parse(context);
         
@@ -90,6 +98,7 @@ public class BasicParserTests
         result.Context.Position.Offset.Should().Be(24);
         result.Context.Position.Line.Should().Be(0);
         result.Context.Position.Column.Should().Be(24);
+        return Task.CompletedTask;
     }
     
     

@@ -9,9 +9,10 @@
     <ItemGroup>
       <ProjectReference Include="..\EasyParsing\EasyParsing.csproj" />
     </ItemGroup>
-    
+
     <ItemGroup>
-        <InternalsVisibleTo Include="EasyParsing.Samples.Tests" />
+        <InternalsVisibleTo Include="EasyParsing.Samples.Markdown.Tests" />
     </ItemGroup>
+
 
 </Project>
