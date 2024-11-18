@@ -6,11 +6,23 @@ namespace EasyParsing.Samples.Markdown;
 
 internal static class AstProjectionsBuilder
 {
+    internal static bool TryPeek<T>(this IList<T> list, out T result)
+    {
+        if (list.Count == 0)
+        {
+            result = default!;
+            return false;
+        }
+
+        result = list[^1];
+        return true;
+    }
+    
     internal static ListItems BuildListTree(this IEnumerable<ListItem> items)
     {
         bool initialized = false;
         int minDepth = 0;
-        var root = new Stack<ListItem>();
+        var root = new List<ListItem>();
         var deep = new Stack<ListItem>();
                     
         foreach (var item in items)
@@ -19,14 +31,14 @@ internal static class AstProjectionsBuilder
             {
                 minDepth = item.Depth;
                 initialized = true;
-                root.Push(item);
+                root.Add(item);
                 continue;
             }
 
             // root
             if (item.Depth <= minDepth)
             {
-                root.Push(item);
+                root.Add(item);
                 deep.Clear();
                 continue;
             }
@@ -36,7 +48,7 @@ internal static class AstProjectionsBuilder
             // same level
             if (item.Depth == lastRoot.Depth)
             {
-                root.Push(item);
+                root.Add(item);
                 deep.Clear();
                 continue;
             }
@@ -44,7 +56,7 @@ internal static class AstProjectionsBuilder
             // sub level under root starts
             if (item.Depth > lastRoot.Depth && deep.Count == 0)
             {
-                lastRoot.NestedList.Push(item);
+                lastRoot.NestedList.Add(item);
                 deep.Push(lastRoot);
                 continue;
             }
@@ -54,7 +66,7 @@ internal static class AstProjectionsBuilder
             // under level continues
             if (item.Depth > currentLevelParent.Depth && currentLevelParent.NestedList.TryPeek(out var lastNested) && lastNested.Depth < item.Depth)
             {
-                lastNested.NestedList.Push(item);
+                lastNested.NestedList.Add(item);
                 deep.Push(lastNested);
                 continue;
             }
@@ -62,7 +74,7 @@ internal static class AstProjectionsBuilder
             // under level starts
             if (item.Depth > currentLevelParent.Depth)
             {
-                currentLevelParent.NestedList.Push(item);
+                currentLevelParent.NestedList.Add(item);
                 continue;
             }
                         
@@ -73,11 +85,11 @@ internal static class AstProjectionsBuilder
                             
                 if (!deep.TryPeek(out currentLevelParent)) throw new ArithmeticException("Current level parent is null");
                             
-                currentLevelParent.NestedList.Push(item);
+                currentLevelParent.NestedList.Add(item);
             }
         }
                     
-        return new ListItems(root.ToArray());
+        return new ListItems(root);
     }
     
     internal static IParser<MarkdownAst[]> MergeRawTextParts(this IParser<IEnumerable<MarkdownAst>> parser)

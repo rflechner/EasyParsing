@@ -31,13 +31,13 @@ public class MarkdownParserTests
         
         results[7].Should()
             .BeEquivalentTo(new ListItems([
-                new ListItem(0, "-", [new RawText("list item 1")], new Stack<ListItem>
-                ([
-                    new ListItem(2, "+", [new RawText("lol")], new Stack<ListItem>()),
-                    new ListItem(2, "+", [new RawText("cool !")], new Stack<ListItem>())
-                ])),
+                new ListItem(0, "-", [new RawText("list item 1")], 
+                [
+                    new ListItem(2, "+", [new RawText("lol")], []),
+                    new ListItem(2, "+", [new RawText("cool !")], [])
+                ]),
                 
-                new ListItem(0, "-", [new RawText("list item 2")], new Stack<ListItem>())
+                new ListItem(0, "-", [new RawText("list item 2")], [])
             ]));
         
     }

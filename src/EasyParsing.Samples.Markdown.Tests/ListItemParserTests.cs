@@ -41,15 +41,14 @@ public class ListItemParserTests
         result.Context.Remaining.ToString().Should().BeEmpty();
         result.Result.Should().NotBeNull();
 
-        var listItems = result.Result!;
-        listItems.Should()
-            .BeEquivalentTo([
-                new ListItems([
+        result.Result!.Should().ContainSingle()
+            .Subject.Should().BeOfType<ListItems>()
+            .Which.Items.Should().HaveCount(3)
+            .And.Subject.Should().BeEquivalentTo([
                     new ListItem(0, "-", [new RawText("list item 1")], []),
                     new ListItem(0, "-", [new RawText("list item 2")], []),
                     new ListItem(0, "-", [new RawText("list item 3")], []),
-                ])
-            ]);
+            ], options => options.WithStrictOrdering().IncludingProperties().IncludingAllRuntimeProperties().AllowingInfiniteRecursion());
     }
     
     [Test]
@@ -99,12 +98,12 @@ public class ListItemParserTests
         listItems.Should()
             .BeEquivalentTo(new ListItems([
                 new ListItem(0, "-", [new RawText("list item 1")], 
-                new Stack<ListItem>([
+                [
                     new ListItem(2, "*", [new RawText("sub item 1")], []),
                     new ListItem(2, "*", [new RawText("sub item 2")], []),
                     new ListItem(2, "*", [new RawText("sub item 3")], []),
                     new ListItem(2, "*", [new RawText("sub item 4")], []),
-                    ])
+                ]
                 ),
                 new ListItem(0, "-", [new RawText("list item 2")], []),
                 new ListItem(0, "-", [new RawText("list item 3")], []),
@@ -138,18 +137,18 @@ public class ListItemParserTests
         listItems.Should()
             .BeEquivalentTo(new ListItems([
                 new ListItem(0, "-", [new RawText("list item 1")], 
-                new Stack<ListItem>([
+                [
                     new ListItem(2, "*", [new RawText("sub item 1")], 
-                        new Stack<ListItem>([
+                        [
                             new ListItem(4, "+", [new RawText("sub item 2.1")], []),
                             new ListItem(4, "+", [new RawText("sub item 2.2")], []),
                             new ListItem(4, "+", [new RawText("sub item 2.3")], []),
-                        ])
+                        ]
                     ),
                     new ListItem(2, "*", [new RawText("sub item 2")], []),
                     new ListItem(2, "*", [new RawText("sub item 3")], []),
                     new ListItem(2, "*", [new RawText("sub item 4")], []),
-                    ])
+                ]
                 ),
                 new ListItem(0, "-", [new RawText("list item 2")], []),
                 new ListItem(0, "-", [new RawText("list item 3")], []),
@@ -188,31 +187,31 @@ public class ListItemParserTests
         listItems.Should()
             .BeEquivalentTo(new ListItems([
                 new ListItem(0, "-", [new RawText("list item 1")], 
-                new Stack<ListItem>([
+                [
                     new ListItem(2, "*", [new RawText("sub item 1")], 
-                        new Stack<ListItem>([
+                        [
                             new ListItem(4, "+", [new RawText("sub item 1.2.1")], []),
                             new ListItem(4, "+", [new RawText("sub item 1.2.2")], 
-                                new Stack<ListItem>([
+                                [
                                     new ListItem(6, "-", [new RawText("sub item 1.2.2.1")], []),
                                     new ListItem(6, "-", [new RawText("sub item 1.2.2.2")], []),
                                     new ListItem(6, "-", [new RawText("sub item 1.2.2.3")], []),
-                                ])
+                                ]
                             ),
                             new ListItem(4, "+", [new RawText("sub item 1.2.3")], []),
-                        ])
+                        ]
                     ),
                     new ListItem(2, "*", [new RawText("sub item 2")], []),
                     new ListItem(2, "*", [new RawText("sub item 3")], []),
                     new ListItem(2, "*", [new RawText("sub item 4")], []),
-                    ])
+                ]
                 ),
                 
                 new ListItem(0, "-", [new RawText("list item 2")], 
-                    new Stack<ListItem>([
+                    [
                         new ListItem(4, "+", [new RawText("sub item 2.1")], []),
                         new ListItem(4, "+", [new RawText("sub item 2.2")], []),
-                    ])),
+                    ]),
                 
                 new ListItem(0, "-", [new RawText("list item 3")], []),
             ]));
