@@ -20,6 +20,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution", "solution", "{C61A21C0-EAD2-4DFF-8EE3-F3C2A2605639}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.build.props = Directory.build.props
+		..\README.md = ..\README.md
+		..\LICENSE = ..\LICENSE
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyParsing.Samples.Markdown", "EasyParsing.Samples.Markdown\EasyParsing.Samples.Markdown.csproj", "{441EABE6-97B6-40B1-A02D-2ED1CD624C79}"
