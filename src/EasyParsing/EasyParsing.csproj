@@ -5,6 +5,7 @@
         <Title>EasyParsing</Title>
         <Authors>codeanythingpossible</Authors>
         <Description>Parser combinator for C#</Description>
+        <Version>$(EasyParsingVersion)</Version>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

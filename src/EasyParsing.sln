@@ -30,7 +30,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyParsing.Samples.Markdow
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyParsing.Samples.Markdown.Tests", "EasyParsing.Samples.Markdown.Tests\EasyParsing.Samples.Markdown.Tests.csproj", "{EE69C090-3118-42B8-9C04-9686FD9855F4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "..\build\_build.csproj", "{4511999E-49DD-4970-BE35-FBE363BDED36}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{4511999E-49DD-4970-BE35-FBE363BDED36}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

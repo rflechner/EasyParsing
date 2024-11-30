@@ -1,5 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     
+    <PropertyGroup>
+        <Version>$(JsonParserVersion)</Version>
+    </PropertyGroup>
+    
     <ItemGroup>
       <ProjectReference Include="..\EasyParsing\EasyParsing.csproj" />
     </ItemGroup>
