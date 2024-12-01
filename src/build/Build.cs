@@ -69,12 +69,6 @@ class Build : NukeBuild
         .Executes(() =>
         {
             var (gitVersion, _) = GitVersion(s => s.SetProcessWorkingDirectory(RootDirectory));
-            
-            var currentBranch = gitVersion.BranchName;
-            Log.Information("Current Branch: {CurrentBranch}", currentBranch);
-            
-            var name = currentBranch.Split('/', StringSplitOptions.RemoveEmptyEntries).LastOrDefault() ?? string.Empty;
-            var suffix = string.IsNullOrWhiteSpace(name) ? string.Empty : new string(name.Where(char.IsLetterOrDigit).ToArray());
 
             foreach (var project in PublishedProjects)
             {
@@ -84,8 +78,9 @@ class Build : NukeBuild
                     .SetOutputDirectory(ArtifactsDirectory)
                     .EnableNoBuild()
                     .EnableIncludeSymbols()
-                    //.EnableNoRestore()
-                    .SetVersionSuffix(suffix));   
+                    .SetRepositoryUrl("https://github.com/rflechner/EasyParsing")
+                    // .SetPackageReleaseNotes("")
+                    .SetVersionSuffix(gitVersion.PreReleaseTag));   
             }
         });
 
