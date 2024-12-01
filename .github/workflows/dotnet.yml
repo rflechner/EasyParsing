@@ -35,4 +35,5 @@ jobs:
       run: dotnet tool install --global Nuke.GlobalTool
       
     - name: Run Nuke build
+      working-directory: src
       run: nuke
