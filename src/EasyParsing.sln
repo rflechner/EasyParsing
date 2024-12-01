@@ -32,6 +32,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyParsing.Samples.Markdow
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{4511999E-49DD-4970-BE35-FBE363BDED36}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "github", "github", "{D5B81646-3773-4510-AF35-D7D8F70EFFD4}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\workflows\dotnet.yml = ..\.github\workflows\dotnet.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,5 +80,6 @@ Global
 		{944407E1-489E-4EB6-92CF-386B23F8A201} = {1FC2AC0D-6B8B-4C47-9BF6-A4572492732A}
 		{441EABE6-97B6-40B1-A02D-2ED1CD624C79} = {944407E1-489E-4EB6-92CF-386B23F8A201}
 		{EE69C090-3118-42B8-9C04-9686FD9855F4} = {944407E1-489E-4EB6-92CF-386B23F8A201}
+		{D5B81646-3773-4510-AF35-D7D8F70EFFD4} = {C61A21C0-EAD2-4DFF-8EE3-F3C2A2605639}
 	EndGlobalSection
 EndGlobal
