@@ -47,4 +47,4 @@ jobs:
     - name: Publish NuGet Package to GitHub Packages
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: dotnet nuget push artifacts/*.nupkg --source "https://nuget.pkg.github.com/rflechner/index.json" --api-key $GITHUB_TOKEN
+      run: dotnet nuget push artifacts/*.nupkg --source "https://nuget.pkg.github.com/rflechner/index.json" --api-key $GITHUB_TOKEN --skip-duplicate
