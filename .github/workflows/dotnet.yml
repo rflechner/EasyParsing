@@ -14,8 +14,8 @@ jobs:
 
     runs-on: ubuntu-latest
     
-#    permissions:
-#      packages: write
+    permissions:
+      packages: write
       
     steps:
     - name: Check out repository
@@ -46,4 +46,4 @@ jobs:
     - name: Publish NuGet Package to GitHub Packages
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: dotnet nuget push artifacts/*.nupkg --api-key $GITHUB_TOKEN
+      run: dotnet nuget push artifacts/*.nupkg --source "https://nuget.pkg.github.com/rflechner/index.json" --api-key $GITHUB_TOKEN
