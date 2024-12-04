@@ -31,7 +31,7 @@ class Build : NukeBuild
     AbsolutePath JsonParserProject => RootDirectory / "EasyParsing.Samples.Json" / "EasyParsing.Samples.Json.csproj";
     AbsolutePath MarkdownParserProject => RootDirectory / "EasyParsing.Samples.Markdown" / "EasyParsing.Samples.Markdown.csproj";
     
-    AbsolutePath DirectoryBuildPropsFile => RootDirectory / "Directory.build.props";
+    AbsolutePath DirectoryBuildPropsFile => RootDirectory / "Directory.Build.props";
     
     AbsolutePath[] PublishedProjects =>
     [
