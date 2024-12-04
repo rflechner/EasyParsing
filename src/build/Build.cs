@@ -1,10 +1,12 @@
 using System;
 using System.Linq;
+using System.Xml.Linq;
 using Nuke.Common;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Utilities;
 using Nuke.Common.Utilities.Collections;
 using Serilog;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
@@ -28,6 +30,8 @@ class Build : NukeBuild
     AbsolutePath CoreLibProject => RootDirectory / "EasyParsing" / "EasyParsing.csproj";
     AbsolutePath JsonParserProject => RootDirectory / "EasyParsing.Samples.Json" / "EasyParsing.Samples.Json.csproj";
     AbsolutePath MarkdownParserProject => RootDirectory / "EasyParsing.Samples.Markdown" / "EasyParsing.Samples.Markdown.csproj";
+    
+    AbsolutePath DirectoryBuildPropsFile => RootDirectory / "Directory.build.props";
     
     AbsolutePath[] PublishedProjects =>
     [
@@ -68,8 +72,8 @@ class Build : NukeBuild
         .DependsOn(Compile)
         .Executes(() =>
         {
-            var (gitVersion, _) = GitVersion(s => s.SetProcessWorkingDirectory(RootDirectory));
-
+            var directoryBuildProps = DirectoryBuildPropsFile.ReadXml();
+            
             foreach (var project in PublishedProjects)
             {
                 DotNetPack(options => options
@@ -80,8 +84,41 @@ class Build : NukeBuild
                     .EnableIncludeSymbols()
                     .SetRepositoryUrl("https://github.com/rflechner/EasyParsing")
                     // .SetPackageReleaseNotes("")
-                    .SetVersionSuffix(gitVersion.PreReleaseTag));   
+                    .SetVersion(GetVersion(directoryBuildProps, project.NameWithoutExtension)));
             }
         });
 
+    string GetVersion(XDocument directoryBuildProps, string projectName)
+    {
+        var version = GetVersionPrefix(directoryBuildProps, projectName);
+
+        return SuffixVersion(version);
+    }
+
+    string GetVersionPrefix(XDocument directoryBuildProps, string projectName)
+    {
+        if (JsonParserProject.NameWithoutExtension.Equals(projectName))
+            return ReadProjectVersion(directoryBuildProps, "JsonParserVersion");
+        
+        if (MarkdownParserProject.NameWithoutExtension.Equals(projectName))
+            return ReadProjectVersion(directoryBuildProps, "MardownParserVersion");
+
+        return ReadProjectVersion(directoryBuildProps, "EasyParsingVersion");
+    }
+
+    static string ReadProjectVersion(XDocument directoryBuildProps, string name) => 
+        directoryBuildProps.Descendants(name).FirstOrDefault()?.Value ?? throw new Exception($"Could not find {name} in Directory.Build.props");
+
+    static string SuffixVersion(string version)
+    {
+        var (gitVersion, _) = GitVersion(s => s.SetProcessWorkingDirectory(RootDirectory));
+
+        var commitId = gitVersion.ShortSha;
+
+        if (gitVersion.BranchName is "master" or "main") return version;
+        
+        if (gitVersion.BranchName is "develop") return $"{version}-beta-{commitId}";
+        
+        return $"{version}-alpha-{commitId}";
+    }
 }

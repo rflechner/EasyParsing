@@ -39,3 +39,8 @@ jobs:
     - name: Run Nuke build
       working-directory: src
       run: nuke
+
+    - name: Publish NuGet Package to GitHub Packages
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: dotnet nuget push artefacts/*.nupkg --source "https://nuget.pkg.github.com/<your-github-username>/index.json" --api-key $GITHUB_TOKEN
