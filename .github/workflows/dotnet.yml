@@ -5,27 +5,46 @@ name: .NET
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    
+    permissions:
+      contents: read
+      packages: write
+      
     steps:
-    - uses: actions/checkout@v4
+    - name: Check out repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+
+    - name: Clean
+      working-directory: src
+      run: dotnet clean
+
     - name: Restore dependencies
       working-directory: src
       run: dotnet restore
-    - name: Build
+
+    - name: Setup Nuke Global Tool
+      run: dotnet tool install --global Nuke.GlobalTool
+      
+    - name: Run Nuke build
       working-directory: src
-      run: dotnet build --no-restore
-    - name: Test
-      working-directory: src
-      run: dotnet test --no-build --verbosity normal
+      run: nuke
+
+    - name: Publish NuGet Package to GitHub Packages
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: dotnet nuget push artifacts/*.nupkg --source "https://nuget.pkg.github.com/rflechner/index.json" --api-key $GITHUB_TOKEN --skip-duplicate

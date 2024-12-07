@@ -10,4 +10,10 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
     
+    <PropertyGroup>
+        <EasyParsingVersion>0.0.1</EasyParsingVersion>
+        <JsonParserVersion>0.0.1</JsonParserVersion>
+        <MardownParserVersion>0.0.1</MardownParserVersion>
+    </PropertyGroup>
+    
 </Project>
