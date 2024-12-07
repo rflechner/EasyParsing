@@ -6,8 +6,8 @@ C# lite parser combinator helping to create parsers easily.
 
 This project contains 2 examples.
 
-- A simple `JSON` parser. 
-- A simple `Markdown` parser. 
+- [A simple JSON parser](src/EasyParsing.Samples.Json/readme.md). 
+- [A simple Markdown parser](src/EasyParsing.Samples.Markdown/readme.md). 
 
 ## Concept of parser combinator
 
