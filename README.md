@@ -86,7 +86,7 @@ We create 3 parsers, then we combine all.
 
 If one parser fails, then the result of combined parser will be a failure.
 
-![schema of pipeline](doc/images/parser_combinator_1.drawio.png "combinator explained")
+![schema of pipeline](doc/images/parser-combinator-1.drawio.png "combinator explained")
 
 **In C#**
 
