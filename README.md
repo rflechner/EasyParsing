@@ -1,3 +1,6 @@
+
+[![.NET](https://github.com/rflechner/EasyParsing/actions/workflows/dotnet.yml/badge.svg)](https://github.com/rflechner/EasyParsing/actions/workflows/dotnet.yml)
+
 # EasyParsing
 
 C# lite parser combinator helping to create parsers easily.
@@ -35,7 +38,7 @@ using static EasyParsing.Dsl.Parse;
 
 IParser<int> IntegerParser =
     from digits in ManySatisfy(char.IsDigit)
-    select int.Parse(new string(digits.ToArray()));
+    select int.Parse(digits);
 
 var result = IntegerParser.Parse("12345");
 
