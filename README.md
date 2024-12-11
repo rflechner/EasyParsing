@@ -102,6 +102,8 @@ IParser<JsonDecimalValue> JsonDecimalValueParser =
         select new JsonDecimalValue(decimal.Parse($"{abs}.{rel}", NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture));
 ```
 
+![schema of pipeline](doc/images/parser_combinator_1.drawio.png "combinator explained")
+
 After creating each value parser, we create a parser which make a choice between each of them.
 
 ```C#
