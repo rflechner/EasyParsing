@@ -1,3 +1,6 @@
+
+[![.NET](https://github.com/rflechner/EasyParsing/actions/workflows/dotnet.yml/badge.svg)](https://github.com/rflechner/EasyParsing/actions/workflows/dotnet.yml)
+
 # EasyParsing
 
 C# lite parser combinator helping to create parsers easily.
