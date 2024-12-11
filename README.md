@@ -35,7 +35,7 @@ using static EasyParsing.Dsl.Parse;
 
 IParser<int> IntegerParser =
     from digits in ManySatisfy(char.IsDigit)
-    select int.Parse(new string(digits.ToArray()));
+    select int.Parse(digits);
 
 var result = IntegerParser.Parse("12345");
 
