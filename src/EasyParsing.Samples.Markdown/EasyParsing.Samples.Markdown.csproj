@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <Version>$(MardownParserVersion)</Version>
+        <Authors>rflechner</Authors>
     </PropertyGroup>
 
     <ItemGroup>

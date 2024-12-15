@@ -3,7 +3,7 @@
     <PropertyGroup>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Title>EasyParsing</Title>
-        <Authors>codeanythingpossible</Authors>
+        <Authors>rflechner</Authors>
         <Description>Parser combinator for C#</Description>
         <Version>$(EasyParsingVersion)</Version>
     </PropertyGroup>

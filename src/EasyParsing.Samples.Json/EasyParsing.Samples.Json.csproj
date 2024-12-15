@@ -2,6 +2,7 @@
     
     <PropertyGroup>
         <Version>$(JsonParserVersion)</Version>
+        <Authors>rflechner</Authors>
     </PropertyGroup>
     
     <ItemGroup>
