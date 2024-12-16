@@ -11,7 +11,7 @@
     </PropertyGroup>
     
     <PropertyGroup>
-        <EasyParsingVersion>0.0.1</EasyParsingVersion>
+        <EasyParsingVersion>0.0.2</EasyParsingVersion>
         <JsonParserVersion>0.0.1</JsonParserVersion>
         <MardownParserVersion>0.0.1</MardownParserVersion>
     </PropertyGroup>
