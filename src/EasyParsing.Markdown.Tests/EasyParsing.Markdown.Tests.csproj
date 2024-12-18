@@ -35,6 +35,11 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         <DependentUpon>MarkdownParserTests.cs</DependentUpon>
       </Content>
+      <None Remove="MarkdownToHtmlConverterTests.case1.md" />
+      <Content Include="MarkdownToHtmlConverterTests.case1.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <DependentUpon>MarkdownToHtmlConverterTests.cs</DependentUpon>
+      </Content>
     </ItemGroup>
 
 </Project>

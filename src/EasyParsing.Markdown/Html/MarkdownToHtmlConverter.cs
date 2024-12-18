@@ -1,4 +1,5 @@
-﻿using EasyParsing.Markdown.Ast;
+﻿using System.Text;
+using EasyParsing.Markdown.Ast;
 
 namespace EasyParsing.Markdown.Html;
 
@@ -27,6 +28,21 @@ public sealed class MarkdownToHtmlConverter
             return writerFunc.Invoke(typedAst, streamWriter, writer);
         };
     }
+
+    /// <summary>
+    /// Converts the given markdown text into HTML and returns the resulting HTML as a string.
+    /// </summary>
+    /// <param name="markdown">The markdown text to convert.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the converted HTML as a string.</returns>
+    public async Task<string> ConvertAsync(string markdown)
+    {
+        using var stream = new MemoryStream();
+        
+        await ConvertAsync(markdown, stream);
+        stream.Seek(0, SeekOrigin.Begin);
+        
+        return Encoding.UTF8.GetString(stream.ToArray());
+    }
     
     /// <summary>
     /// Converts the given markdown text into HTML and writes the result to the specified output stream.
@@ -38,7 +54,7 @@ public sealed class MarkdownToHtmlConverter
     {
         var ast = MarkdownParser.ParseMarkdown(markdown);
         
-        await using var streamWriter = new StreamWriter(outputStream);
+        await using var streamWriter = new StreamWriter(outputStream, leaveOpen: true);
 
         foreach (var node in ast)
         {

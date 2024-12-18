@@ -14,10 +14,12 @@ public static class DefaultMarkdownAstWriters
     /// <typeparam name="T">The specific type of Markdown AST node to be written.</typeparam>
     /// <param name="func">A strongly-typed function for writing a specific Markdown AST node asynchronously.</param>
     /// <returns>A generalized function for writing Markdown AST nodes asynchronously, wrapping the input function for the specified type.</returns>
-    private static Func<MarkdownAst, StreamWriter, MarkdownAstWriter, Task> Wrap<T>(Func<T, StreamWriter, MarkdownAstWriter, Task> func)
+    private static (Type AstType, Func<MarkdownAst, StreamWriter, MarkdownAstWriter, Task> Func) Wrap<T>(Func<T, StreamWriter, MarkdownAstWriter, Task> func)
         where T : MarkdownAst
     {
-        return (ast, streamWriter, writer) => func((T)ast, streamWriter, writer);
+        Func<MarkdownAst, StreamWriter, MarkdownAstWriter, Task> f = (ast, streamWriter, writer) => func((T)ast, streamWriter, writer);
+        
+        return (typeof(T), f);
     }
     
     /// <summary>
@@ -28,7 +30,7 @@ public static class DefaultMarkdownAstWriters
     {
         foreach (var writer in GetWriters())
         {
-            registry[writer.Method.GetParameters()[0].ParameterType] = writer;
+            registry[writer.AstType] = writer.Func;
         }
     }
     
@@ -36,7 +38,7 @@ public static class DefaultMarkdownAstWriters
     /// Retrieves the default set of functions for writing Markdown abstract syntax tree (AST) elements to a stream writer asynchronously.
     /// </summary>
     /// <returns>An enumerable collection of delegate functions, each responsible for handling a specific type of Markdown AST node.</returns>
-    public static IEnumerable<Func<MarkdownAst, StreamWriter, MarkdownAstWriter, Task>> GetWriters()
+    public static IEnumerable<(Type AstType, Func<MarkdownAst, StreamWriter, MarkdownAstWriter, Task> Func)> GetWriters()
     {
         yield return Wrap<Bold>(BoldWriter);
         yield return Wrap<Crlf>(CrlfWriter);
@@ -52,6 +54,7 @@ public static class DefaultMarkdownAstWriters
         yield return Wrap<Strikethrough>(StrikethroughWriter);
         yield return Wrap<TaskListItem>(TaskListItemWriter);
         yield return Wrap<Title>(TitleWriter);
+        yield return Wrap<RawText>(RawTextWriter);
     }
     
     /// <summary>
@@ -265,5 +268,17 @@ public static class DefaultMarkdownAstWriters
         await streamWriter.WriteAsync($"<h{titleDepth}>");
         foreach (var ast in title.Content) await writer(ast, streamWriter);
         await streamWriter.WriteAsync($"</h{titleDepth}>");
+    }
+
+    /// <summary>
+    /// Writes a raw text segment from the Markdown abstract syntax tree (AST) to the provided stream asynchronously.
+    /// </summary>
+    /// <param name="rawText">The raw text segment to be written, containing the textual content.</param>
+    /// <param name="streamWriter">The stream writer used to output the raw text content.</param>
+    /// <param name="writer">The generalized Markdown AST writer delegate for handling nested AST nodes during execution, if applicable.</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
+    public static Task RawTextWriter(RawText rawText, StreamWriter streamWriter, MarkdownAstWriter writer)
+    {
+        return streamWriter.WriteAsync(rawText.Content);
     }
 }
