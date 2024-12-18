@@ -1,18 +1,19 @@
 using EasyParsing.Dsl;
 using EasyParsing.Dsl.Linq;
 using EasyParsing.Markdown.Ast;
+using EasyParsing.Markdown.Exceptions;
 using EasyParsing.Parsers;
 using static EasyParsing.Dsl.Parse;
 
 namespace EasyParsing.Markdown;
 
 /// <summary>
-/// Markdown parser based on syntax described by Github.
+/// Markdown parser based on syntax described by GitHub.
 /// </summary>
 /// <remarks>
 /// - https://docs.github.com/fr/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#styling-text
 /// </remarks>
-public class MarkdownParser
+public static class MarkdownParser
 {
     public static bool TryParseMarkdown(string markdown, out MarkdownAst[] markdownAsts)
     {
@@ -26,6 +27,19 @@ public class MarkdownParser
 
         markdownAsts = result.Result;
         return true;
+    }
+    
+    public static MarkdownAst[] ParseMarkdown(string markdown)
+    {
+        var result = MarkdownSyntaxParser.Parse(markdown);
+
+        if (!result.Success || result.Result is null)
+        {
+            var errorMessage = result.FailureMessage ?? "No failure message provided.";
+            throw new MarkdownParsingException($"Failed to parse markdown: {errorMessage}");
+        }
+
+        return result.Result;
     }
 
     internal static IParser<MarkdownAst[]> MarkdownSyntaxParser =>
@@ -197,5 +211,4 @@ public class MarkdownParser
         from cr in OneChar('\r').Optionnal().DefaultWith('\r')
         from lf in OneChar('\n')
         select new Crlf();
-
 }
