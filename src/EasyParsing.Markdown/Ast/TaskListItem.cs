@@ -1,4 +1,4 @@
-﻿namespace EasyParsing.Samples.Markdown.Ast;
+﻿namespace EasyParsing.Markdown.Ast;
 
 /// <summary>
 /// Represents a task list item in a Markdown abstract syntax tree (AST).

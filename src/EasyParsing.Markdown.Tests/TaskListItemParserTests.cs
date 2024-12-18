@@ -1,7 +1,7 @@
-﻿using EasyParsing.Samples.Markdown.Ast;
+﻿using EasyParsing.Markdown.Ast;
 using FluentAssertions;
 
-namespace EasyParsing.Samples.Markdown.Tests;
+namespace EasyParsing.Markdown.Tests;
 
 public class TaskListItemParserTests
 {

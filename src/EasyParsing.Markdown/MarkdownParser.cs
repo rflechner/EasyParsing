@@ -1,10 +1,10 @@
 using EasyParsing.Dsl;
 using EasyParsing.Dsl.Linq;
+using EasyParsing.Markdown.Ast;
 using EasyParsing.Parsers;
-using EasyParsing.Samples.Markdown.Ast;
 using static EasyParsing.Dsl.Parse;
 
-namespace EasyParsing.Samples.Markdown;
+namespace EasyParsing.Markdown;
 
 /// <summary>
 /// Markdown parser based on syntax described by Github.

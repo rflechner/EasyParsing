@@ -1,4 +1,4 @@
-﻿namespace EasyParsing.Samples.Markdown.Ast;
+﻿namespace EasyParsing.Markdown.Ast;
 
 /// <summary>
 /// Represents a rich text element in a Markdown abstract syntax tree (AST).

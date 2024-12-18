@@ -1,8 +1,8 @@
 ﻿using System.Collections.Immutable;
 using EasyParsing.Dsl.Linq;
-using EasyParsing.Samples.Markdown.Ast;
+using EasyParsing.Markdown.Ast;
 
-namespace EasyParsing.Samples.Markdown;
+namespace EasyParsing.Markdown;
 
 internal static class AstProjectionsBuilder
 {

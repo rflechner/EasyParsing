@@ -1,4 +1,4 @@
-﻿namespace EasyParsing.Samples.Markdown.Ast;
+﻿namespace EasyParsing.Markdown.Ast;
 
 /// <summary>
 /// Represents text that is rendered with a strikethrough in a Markdown document.

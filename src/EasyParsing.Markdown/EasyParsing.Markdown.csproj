@@ -10,7 +10,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="EasyParsing.Samples.Markdown.Tests" />
+        <InternalsVisibleTo Include="EasyParsing.Markdown.Tests" />
     </ItemGroup>
 
 
