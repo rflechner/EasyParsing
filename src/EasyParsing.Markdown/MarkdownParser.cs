@@ -204,7 +204,7 @@ public static class MarkdownParser
 
     internal static IParser<MarkdownAst> ParagraphStartParser =>
         from spaces in Spaces()
-        where spaces.Count(IsNewLine) >= 3
+        where spaces.Count(IsNewLine) >= 2
         select new ParagraphStart();
 
     internal static IParser<MarkdownAst> CrlfParser =>
