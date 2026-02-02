@@ -172,12 +172,24 @@ public static class MarkdownParser
                 from spaces in InlineSpaces().Optionnal().DefaultWith(string.Empty)
                 from bullet in bulletParser
                 from separatorSpaces in InlineSpaces()
-                from content in Many(StyledTextParser | EntireLine)
+                from content in ListTextContentParser
                 from endOfLine in NewLine().Optionnal()
                 select new ListItem(spaces.Length, bullet, content.ToArray(), []);
         }
     }
-    
+
+    internal static IParser<MarkdownAst[]> ListTextContentParser
+    {
+        get
+        {
+            var text = 
+                ManySatisfy(c => (char.IsWhiteSpace(c) || char.IsLetterOrDigit(c)) && c != '\n' && c != '\r')
+                    .Select(MarkdownAst (s) => new RawText(s));
+            
+            return Many(text | StyledTextParser | EntireLine).MergeRawTextParts();
+        }
+    }
+
     internal static IParser<ListItems> ListParser => Many(ListItemParser).Select(AstProjectionsBuilder.BuildListTree);
 
     internal static IParser<TaskListItem> TaskListItemParser

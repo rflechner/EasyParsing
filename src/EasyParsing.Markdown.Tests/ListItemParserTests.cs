@@ -217,5 +217,59 @@ public class ListItemParserTests
             ]));
     }
     
+    [Test]
+    public void RichTextParser_Should_ParseOneLevelListWithBoldContent()
+    {
+        var parser = MarkdownParser.MarkdownSyntaxParser;
+        var markdown = 
+            """
+                - list item 1
+                - list **item bold** 2
+                - list item 3
+                """.TrimStart();
+        
+        var result = parser.Parse(markdown);
+        
+        result.Success.Should().BeTrue();
+        result.Context.Remaining.ToString().Should().BeEmpty();
+        result.Result.Should().NotBeNull();
+
+        result.Result!.Should().ContainSingle()
+            .Subject.Should().BeOfType<ListItems>()
+            .Which.Items.Should().HaveCount(3)
+            .And.Subject.Should()
+                .BeEquivalentTo([
+                    new ListItem(0, "-", [new RawText("list item 1")], []),
+                    new ListItem(0, "-", [
+                        new RawText("list "),
+                        new Bold([new RawText("item bold")]),
+                        new RawText(" 2"),
+                    ], []),
+                    new ListItem(0, "-", [new RawText("list item 3")], []),
+                ], 
+                options => options.WithStrictOrdering().IncludingProperties().IncludingAllRuntimeProperties().AllowingInfiniteRecursion());
+    }
     
+    [Test]
+    public void ListItemContentParser_Should_BoldContent()
+    {
+        var parser = MarkdownParser.ListTextContentParser;
+        var markdown = """list **item bold** 2""".TrimStart();
+        
+        IParsingResult<MarkdownAst[]> result = parser.Parse(markdown);
+        
+        result.Success.Should().BeTrue();
+        result.Context.Remaining.ToString().Should().BeEmpty();
+        result.Result.Should().NotBeNull();
+
+        result.Result!.Should()
+            .BeEquivalentTo(new MarkdownAst[]
+                {
+                    new RawText("list "),
+                    new Bold([new RawText("item bold")]),
+                    new RawText(" 2")
+                }, 
+                options => options.WithStrictOrdering().IncludingProperties().IncludingAllRuntimeProperties().AllowingInfiniteRecursion());
+    }
+
 }
