@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyParsing.Samples.Json.Te
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "JsonParser", "JsonParser", "{C8C6DAFF-8D16-4C8C-BEBA-A5EA71A28B44}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MarkdownParser", "MarkdownParser", "{944407E1-489E-4EB6-92CF-386B23F8A201}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Markdown", "Markdown", "{944407E1-489E-4EB6-92CF-386B23F8A201}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution", "solution", "{C61A21C0-EAD2-4DFF-8EE3-F3C2A2605639}"
 	ProjectSection(SolutionItems) = preProject
@@ -26,9 +26,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution", "solution", "{C6
 		.config\dotnet-tools.json = .config\dotnet-tools.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyParsing.Samples.Markdown", "EasyParsing.Samples.Markdown\EasyParsing.Samples.Markdown.csproj", "{441EABE6-97B6-40B1-A02D-2ED1CD624C79}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyParsing.Markdown", "EasyParsing.Markdown\EasyParsing.Markdown.csproj", "{441EABE6-97B6-40B1-A02D-2ED1CD624C79}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyParsing.Samples.Markdown.Tests", "EasyParsing.Samples.Markdown.Tests\EasyParsing.Samples.Markdown.Tests.csproj", "{EE69C090-3118-42B8-9C04-9686FD9855F4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyParsing.Markdown.Tests", "EasyParsing.Markdown.Tests\EasyParsing.Markdown.Tests.csproj", "{EE69C090-3118-42B8-9C04-9686FD9855F4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{4511999E-49DD-4970-BE35-FBE363BDED36}"
 EndProject
@@ -36,6 +36,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "github", "github", "{D5B816
 	ProjectSection(SolutionItems) = preProject
 		..\.github\workflows\dotnet.yml = ..\.github\workflows\dotnet.yml
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{4155C8FD-F221-44C4-9CE5-B726CDF2A505}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RealUseCases", "RealUseCases", "{26BAEFA4-0C4E-4516-A97E-976CAEF37D95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,9 +81,11 @@ Global
 		{C8C6DAFF-8D16-4C8C-BEBA-A5EA71A28B44} = {1FC2AC0D-6B8B-4C47-9BF6-A4572492732A}
 		{7817DD08-367A-477F-AFF1-C7630E9A18C9} = {C8C6DAFF-8D16-4C8C-BEBA-A5EA71A28B44}
 		{052C67FA-F1CD-483A-A0CE-559CB2454621} = {C8C6DAFF-8D16-4C8C-BEBA-A5EA71A28B44}
-		{944407E1-489E-4EB6-92CF-386B23F8A201} = {1FC2AC0D-6B8B-4C47-9BF6-A4572492732A}
 		{441EABE6-97B6-40B1-A02D-2ED1CD624C79} = {944407E1-489E-4EB6-92CF-386B23F8A201}
 		{EE69C090-3118-42B8-9C04-9686FD9855F4} = {944407E1-489E-4EB6-92CF-386B23F8A201}
 		{D5B81646-3773-4510-AF35-D7D8F70EFFD4} = {C61A21C0-EAD2-4DFF-8EE3-F3C2A2605639}
+		{2CC1284E-87BF-4F47-BCE4-E0FEE5C780A5} = {4155C8FD-F221-44C4-9CE5-B726CDF2A505}
+		{96225AA0-4532-4DEA-BAF6-B9B306AEA00E} = {4155C8FD-F221-44C4-9CE5-B726CDF2A505}
+		{944407E1-489E-4EB6-92CF-386B23F8A201} = {26BAEFA4-0C4E-4516-A97E-976CAEF37D95}
 	EndGlobalSection
 EndGlobal
