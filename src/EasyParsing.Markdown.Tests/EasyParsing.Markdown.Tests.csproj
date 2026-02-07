@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentAssertions" Version="6.12.2" />
+        <PackageReference Include="coverlet.collector" Version="6.0.2">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+        <PackageReference Include="NUnit" Version="4.2.2" />
+        <PackageReference Include="NUnit.Analyzers" Version="4.4.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="NUnit.Framework"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\EasyParsing.Markdown\EasyParsing.Markdown.csproj" />
+      <ProjectReference Include="..\EasyParsing\EasyParsing.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="TryParseMarkdown.asset1.md" />
+      <Content Include="MarkdownParserTests.asset1.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <DependentUpon>MarkdownParserTests.cs</DependentUpon>
+      </Content>
+      <None Remove="MarkdownToHtmlConverterTests.case1.md" />
+      <Content Include="MarkdownToHtmlConverterTests.case1.md">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <DependentUpon>MarkdownToHtmlConverterTests.cs</DependentUpon>
+      </Content>
+    </ItemGroup>
+
+</Project>

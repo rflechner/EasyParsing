@@ -396,3 +396,9 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+src/.idea/.idea.EasyParsing/.idea/
+
+src/.DS_Store
+
+src/EasyParsing.Markdown.Tests/.DS_Store
