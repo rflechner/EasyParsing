@@ -133,39 +133,38 @@ public class MathsParser
         if (!leftResult.Success)
             return new ParsingResult<BinaryOperation<TToken>>(leftResult.Context, false, null, leftResult.FailureMessage);
 
-        IParsingResult<string>? opResult = null;
-
-        Operator<string>? currentOperator = null;
-        
-        foreach (var op in operators)
-        {
-            opResult = op.Parser.Parse(leftResult.Context);
-            if (!opResult.Success) continue;
-            
-            currentOperator = op;
-            break;
-        }
-        
-        if (opResult is not { Success: true } || currentOperator is null)
+        IParsingResult<Operator<string>> parseOperatorResult = TryParseOperator(leftResult.Context, operators);
+        if (!parseOperatorResult.Success)
             return new ParsingResult<BinaryOperation<TToken>>(leftResult.Context, false, null, "No operator found");
         
-        var rightResult = operandParser.Parse(opResult.Context);
+        var rightResult = operandParser.Parse(parseOperatorResult.Context);
         if (!rightResult.Success)
             return new ParsingResult<BinaryOperation<TToken>>(rightResult.Context, false, null, rightResult.FailureMessage);
 
         BinaryOperationOperand<TToken> right = new BinaryOperationOperandValue<TToken>(rightResult.Result!);
-        var nextResult = ParseAlgebraicExpression(opResult.Context, operandParser, subOperationStart, subOperationEnd, operators);
-        if (nextResult is { Success: true })
-        {
+        var nextResult = ParseAlgebraicExpression(parseOperatorResult.Context, operandParser, subOperationStart, subOperationEnd, operators);
+        if (nextResult is { Success: true }) 
             right = nextResult.Result!;
-        }
         
         return new ParsingResult<BinaryOperation<TToken>>(
             rightResult.Context, rightResult.Success, 
             new BinaryOperation<TToken>(
                 new BinaryOperationOperandValue<TToken>(leftResult.Result!), 
                 right, 
-                currentOperator), 
+                parseOperatorResult.Result!), 
             rightResult.FailureMessage);
+    }
+
+    private static IParsingResult<Operator<string>> TryParseOperator(ParsingContext context, Operator<string>[] operators)
+    {
+        foreach (var op in operators)
+        {
+            var opResult = op.Parser.Parse(context);
+            if (!opResult.Success) continue;
+            
+            return new ParsingResult<Operator<string>>(opResult.Context, true, op, null);
+        }
+
+        return new ParsingResult<Operator<string>>(context, false, null, "No operator found");
     }
 }

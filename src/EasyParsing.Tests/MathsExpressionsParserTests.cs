@@ -29,8 +29,6 @@ public class MathsExpressionsParserTests
     public void ParsingSimpleAdditionOfThreeIntegers_Should_Success()
     {
         var operandParser = Parse.SkipSpaces() << Parse.ManySatisfy(char.IsNumber) >> Parse.SkipSpaces();
-        var addOperator = Parse.SkipSpaces() << Parse.StringMatch("+") >> Parse.SkipSpaces();
-        var minusOperator = Parse.SkipSpaces() << Parse.StringMatch("-") >> Parse.SkipSpaces();
         var subOperationStart = Parse.SkipSpaces() << Parse.StringMatch("(") >> Parse.SkipSpaces();
         var subOperationEnd = Parse.SkipSpaces() << Parse.StringMatch(")") >> Parse.SkipSpaces();
         
