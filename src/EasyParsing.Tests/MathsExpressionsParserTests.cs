@@ -9,16 +9,18 @@ public class MathsExpressionsParserTests
     public void ParsingSimpleAdditionOfTwoSimpleIntegers_Should_Success()
     {
         var operandParser = Parse.SkipSpaces() << Parse.ManySatisfy(char.IsNumber) >> Parse.SkipSpaces();
-        var subOperationStart = Parse.SkipSpaces() << Parse.StringMatch("(") >> Parse.SkipSpaces();
-        var subOperationEnd = Parse.SkipSpaces() << Parse.StringMatch(")") >> Parse.SkipSpaces();
+        IParser<string> subOperationStart = Parse.SkipSpaces() << Parse.StringMatch("(") >> Parse.SkipSpaces();
+        IParser<string> subOperationEnd = Parse.SkipSpaces() << Parse.StringMatch(")") >> Parse.SkipSpaces();
 
         var text = "1 + 25";
 
-        var result = MathsParser.ParseAlgebraicExpression(text, operandParser,
+        var result = MathsParser.ParseAlgebraicExpression(
+            subOperationStart, subOperationEnd,
+            operandParser,
         [
             new Operator<string>(OperatorKind.Infix, "+", 1),
             new Operator<string>(OperatorKind.Infix, "-", 1)
-        ]);
+        ]).Parse(text);
         
         Assert.That(result.Success, Is.True);
         var binaryOperation = (BinaryOperation<string>) result.Result!;
@@ -38,11 +40,12 @@ public class MathsExpressionsParserTests
         
         var text = "1 + 25 + 589";
         
-        var result = MathsParser.ParseAlgebraicExpression(text, operandParser,
+        var result = MathsParser.ParseAlgebraicExpression(subOperationStart, subOperationEnd,
+            operandParser,
         [
             new Operator<string>(OperatorKind.Infix, "+", 1),
             new Operator<string>(OperatorKind.Infix, "-", 1)
-        ]);
+        ]).Parse(text);
         
         Assert.That(result.Success, Is.True);
         var binaryOperation = (BinaryOperation<string>) result.Result!;
@@ -72,13 +75,14 @@ public class MathsExpressionsParserTests
         
         var text = "1 * 25 + 589";
         
-        var result = MathsParser.ParseAlgebraicExpression(text, operandParser,
+        var result = MathsParser.ParseAlgebraicExpression(subOperationStart, subOperationEnd,
+            operandParser,
         [
             new Operator<string>(OperatorKind.Infix, "+", 10),
             new Operator<string>(OperatorKind.Infix, "-", 10),
             new Operator<string>(OperatorKind.Infix, "*", 20),
             new Operator<string>(OperatorKind.Infix, "/", 20),
-        ]);
+        ]).Parse(text);
         
         Assert.That(result.Success, Is.True);
         var binaryOperation = (BinaryOperation<string>) result.Result!;
@@ -104,13 +108,14 @@ public class MathsExpressionsParserTests
         
         var text = "1 + 25 * 589";
         
-        var result = MathsParser.ParseAlgebraicExpression(text, operandParser,
+        var result = MathsParser.ParseAlgebraicExpression(subOperationStart, subOperationEnd,
+            operandParser,
         [
             new Operator<string>(OperatorKind.Infix, "+", 10),
             new Operator<string>(OperatorKind.Infix, "-", 10),
             new Operator<string>(OperatorKind.Infix, "*", 20),
             new Operator<string>(OperatorKind.Infix, "/", 20),
-        ]);
+        ]).Parse(text);
         
         Assert.That(result.Success, Is.True);
         var binaryOperation = (BinaryOperation<string>) result.Result!;
