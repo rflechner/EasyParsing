@@ -50,11 +50,11 @@ public enum OperatorKind
 /// <param name="Text">
 /// The raw text representation of the operator, used for matching the operator in an expression.
 /// </param>
-/// <param name="Priority">
+/// <param name="Precedence">
 /// The priority level of the operator, used for determining the order of operations
 /// during expression evaluation.
 /// </param>
-public record Operator<TToken>(OperatorKind Kind, string Text, int Priority)
+public record Operator<TToken>(OperatorKind Kind, string Text, int Precedence)
 {
     /// <summary>
     /// The parser used to match the operator in an expression.
@@ -103,11 +103,11 @@ public record BinaryOperation<TToken>(
 /// The type of token that this operand holds, typically used in the parsing context
 /// to identify or process a specific atomic unit of an expression.
 /// </typeparam>
-/// <param name="Left">
+/// <param name="Value">
 /// The token value representing the left operand in a binary operation.
 /// This value is used as part of the expression evaluation process.
 /// </param>
-public record BinaryOperationOperandValue<TToken>(TToken Left) : BinaryOperationOperand<TToken>;
+public record BinaryOperationOperandValue<TToken>(TToken Value) : BinaryOperationOperand<TToken>;
 
 /// <summary>
 /// Represents a parser for mathematical expressions.
@@ -115,44 +115,46 @@ public record BinaryOperationOperandValue<TToken>(TToken Left) : BinaryOperation
 public class MathsParser
 {
     /// <summary>
-    /// Parses an algebraic expression into a binary operation structure.
+    /// Parse an expression with operators precedence.
     /// </summary>
-    /// <param name="context">The algebraic expression to parse.</param>
-    /// <param name="operandParser">The parser used to parse individual operands in the expression.</param>
-    /// <param name="subOperationStart">The parser used to identify the start of a sub-operation in the expression.</param>
-    /// <param name="subOperationEnd">The parser used to identify the end of a sub-operation in the expression.</param>
-    /// <param name="operators">The set of operators used in the algebraic expression.</param>
-    /// <typeparam name="TToken">The type of token produced by the operand and operator parsers.</typeparam>
-    /// <returns>An object representing the parsed result of the algebraic expression, or an error indication if parsing fails.</returns>
-    public static IParsingResult<BinaryOperation<TToken>> ParseAlgebraicExpression<TToken>(ParsingContext context,
+    /// <param name="context"></param>
+    /// <param name="operandParser"></param>
+    /// <param name="ops"></param>
+    /// <param name="minPrec"></param>
+    /// <typeparam name="TToken"></typeparam>
+    /// <returns></returns>
+    public static IParsingResult<BinaryOperationOperand<TToken>> ParseAlgebraicExpression<TToken>(
+        ParsingContext context,
         IParser<TToken> operandParser,
-        IParser<string> subOperationStart, IParser<string> subOperationEnd,
-        params Operator<string>[] operators)
+        Operator<string>[] ops,
+        int minPrec = 0)
     {
-        var leftResult = operandParser.Parse(context);
-        if (!leftResult.Success)
-            return new ParsingResult<BinaryOperation<TToken>>(leftResult.Context, false, null, leftResult.FailureMessage);
+        // 1) parse left (operand ou sous-expression)
+        var leftRes = operandParser.Parse(context);
+        if (!leftRes.Success)
+            return new ParsingResult<BinaryOperationOperand<TToken>>(context, false, null, leftRes.FailureMessage);
 
-        IParsingResult<Operator<string>> parseOperatorResult = TryParseOperator(leftResult.Context, operators);
-        if (!parseOperatorResult.Success)
-            return new ParsingResult<BinaryOperation<TToken>>(leftResult.Context, false, null, "No operator found");
-        
-        var rightResult = operandParser.Parse(parseOperatorResult.Context);
-        if (!rightResult.Success)
-            return new ParsingResult<BinaryOperation<TToken>>(rightResult.Context, false, null, rightResult.FailureMessage);
+        BinaryOperationOperand<TToken> left = new BinaryOperationOperandValue<TToken>(leftRes.Result!);
+        var ctx = leftRes.Context;
 
-        BinaryOperationOperand<TToken> right = new BinaryOperationOperandValue<TToken>(rightResult.Result!);
-        var nextResult = ParseAlgebraicExpression(parseOperatorResult.Context, operandParser, subOperationStart, subOperationEnd, operators);
-        if (nextResult is { Success: true }) 
-            right = nextResult.Result!;
-        
-        return new ParsingResult<BinaryOperation<TToken>>(
-            rightResult.Context, rightResult.Success, 
-            new BinaryOperation<TToken>(
-                new BinaryOperationOperandValue<TToken>(leftResult.Result!), 
-                right, 
-                parseOperatorResult.Result!), 
-            rightResult.FailureMessage);
+        // 2) boucle opérateurs
+        while (true)
+        {
+            var parseOperatorResult = TryParseOperator(ctx, ops);
+            if (!parseOperatorResult.Success) break;
+
+            if (parseOperatorResult.Result!.Precedence < minPrec) break;
+
+            // 3) parse right avec seuil
+            var rightRes = ParseAlgebraicExpression(parseOperatorResult.Context, operandParser, ops, parseOperatorResult.Result!.Precedence + 1);
+            if (!rightRes.Success)
+                return new ParsingResult<BinaryOperationOperand<TToken>>(ctx, false, null, rightRes.FailureMessage);
+
+            left = new BinaryOperation<TToken>(left, rightRes.Result!, parseOperatorResult.Result!);
+            ctx = rightRes.Context;
+        }
+
+        return new ParsingResult<BinaryOperationOperand<TToken>>(ctx, true, left, null);
     }
 
     private static IParsingResult<Operator<string>> TryParseOperator(ParsingContext context, Operator<string>[] operators)
