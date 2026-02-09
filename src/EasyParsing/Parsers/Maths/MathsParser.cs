@@ -1,4 +1,5 @@
 using EasyParsing.Dsl;
+using EasyParsing.Dsl.Linq;
 
 namespace EasyParsing.Parsers.Maths;
 
@@ -63,6 +64,15 @@ public record Operator<TToken>(OperatorKind Kind, string Text, int Precedence)
 }
 
 /// <summary>
+/// Represents an operator with a specific type, used for parsing typed operators in expressions.
+/// </summary>
+/// <param name="Kind"></param>
+/// <param name="Parser"></param>
+/// <param name="Precedence"></param>
+/// <typeparam name="TToken"></typeparam>
+public record TypedOperator<TToken>(OperatorKind Kind, IParser<TToken> Parser, int Precedence);
+
+/// <summary>
 /// Represents a base abstraction for an operand used in binary operations within a mathematical parser.
 /// This record serves as the foundational type for all operands that are part of binary mathematical
 /// expressions, providing a common structure for operations involving two operands.
@@ -118,21 +128,50 @@ public class MathsParser
     /// <summary>
     /// Creates a parser for algebraic expressions composed of operands and operators.
     /// </summary>
-    /// <param name="subOperationStart"></param>
-    /// <param name="subOperationEnd"></param>
     /// <param name="operandParser"></param>
     /// <param name="ops"></param>
     /// <param name="minPrec"></param>
     /// <typeparam name="TToken"></typeparam>
     /// <returns></returns>
     public static IParser<BinaryOperationOperand<TToken>> ParseAlgebraicExpression<TToken>(
-        IParser<string> subOperationStart,
-        IParser<string> subOperationEnd,
-        IParser<TToken> operandParser,
+        IParser<BinaryOperationOperand<TToken>> operandParser,
         Operator<string>[] ops,
         int minPrec = 0)
     {
-        return new AlgebraicExpressionParser<TToken>(subOperationStart, subOperationEnd, operandParser, ops, minPrec);
+        return new AlgebraicExpressionParser<TToken>(operandParser, ops, minPrec);
     }
     
+    /// <summary>
+    /// Creates a parser for algebraic expressions composed of operands and operators.
+    /// </summary>
+    /// <param name="operandParser"></param>
+    /// <param name="subOperationStart"></param>
+    /// <param name="subOperationEnd"></param>
+    /// <param name="ops"></param>
+    /// <typeparam name="TToken"></typeparam>
+    /// <returns></returns>
+    public static IParser<BinaryOperationOperand<TToken>> ParseAlgebraicExpression<TToken>(
+        IParser<BinaryOperationOperand<TToken>> operandParser,
+        IParser<string> subOperationStart,
+        IParser<string> subOperationEnd,
+        Operator<string>[] ops)
+    {
+        // 1) crée d'abord un LazyParser *non-null*
+        IParser<BinaryOperationOperand<TToken>> expr = null!;
+        expr = new LazyParser<BinaryOperationOperand<TToken>>(() =>
+        {
+            // 2) parenthèses utilisent expr (OK car expr existe déjà)
+            var paren = 
+                Parse.Between(subOperationStart, expr, subOperationEnd)
+                    .Select(r => r.Item);
+
+            // 3) primary = paren OR operand
+            var primary = (paren | operandParser);
+
+            // 4) expression = Pratt sur primary
+            return new AlgebraicExpressionParser<TToken>(primary, ops, minPrec: 0);
+        });
+
+        return expr;
+    }
 }
