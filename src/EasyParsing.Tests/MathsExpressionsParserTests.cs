@@ -238,4 +238,53 @@ public class MathsExpressionsParserTests
         Assert.That(subOperation.Right, Is.EqualTo(new BinaryOperationOperandValue<string>("1")));
     }
 
+    [TestCase("(9 - 1)", (9 - 1))]
+    [TestCase("1 + 25 * 589 * (9 - 1)", 1 + 25 * 589 * (9 - 1))]
+    [TestCase("1 + 25 / 589 * (9 - 1)", 1 + 25 / 589 * (9 - 1))]
+    [TestCase("1021 / 7 + 2 * ((7-2) * 3)", 1021 / 7 + 2 * ((7-2) * 3))]
+    public void EvaluatingParsedExpression_Should_ReturnCorrectResult(string text, int expectedResult)
+    {
+        var operandParser =
+            from _ in Parse.SkipSpaces()
+            from n in Parse.ManySatisfy(char.IsNumber)
+            from __ in Parse.SkipSpaces()
+            select new BinaryOperationOperandValue<int>(int.Parse(n));
+
+        var subOperationStart = Parse.SkipSpaces() << Parse.StringMatch("(") >> Parse.SkipSpaces();
+        var subOperationEnd   = Parse.SkipSpaces() << Parse.StringMatch(")") >> Parse.SkipSpaces();
+
+        var parser = MathsParser.ParseAlgebraicExpression(
+            operandParser,
+            subOperationStart, subOperationEnd,
+            [
+                new Operator<string>(OperatorKind.Infix, "+", 10),
+                new Operator<string>(OperatorKind.Infix, "-", 10),
+                new Operator<string>(OperatorKind.Infix, "*", 20),
+                new Operator<string>(OperatorKind.Infix, "/", 20),
+            ]);
+
+        var result = parser.Parse(text);
+        Assert.That(result.Success, Is.True);
+
+        var computationResult = Evaluate(result.Result!);
+
+        Assert.That(computationResult, Is.EqualTo(expectedResult));
+    }
+
+    private static int Evaluate(BinaryOperationOperand<int> operand)
+    {
+        return operand switch
+        {
+            BinaryOperationOperandValue<int> value => value.Value,
+            BinaryOperation<int> operation => operation.Operator.Text switch
+            {
+                "+" => Evaluate(operation.Left) + Evaluate(operation.Right),
+                "-" => Evaluate(operation.Left) - Evaluate(operation.Right),
+                "*" => Evaluate(operation.Left) * Evaluate(operation.Right),
+                "/" => Evaluate(operation.Left) / Evaluate(operation.Right),
+                _ => throw new InvalidOperationException($"Unknown operator: {operation.Operator.Text}")
+            },
+            _ => throw new InvalidOperationException($"Unknown operand type: {operand.GetType()}")
+        };
+    }
 }
