@@ -34,7 +34,13 @@ public class AlgebraicExpressionParser<TToken> : ParserBase<BinaryOperationOpera
     /// <param name="context"></param>
     /// <returns></returns>
     public override IParsingResult<BinaryOperationOperand<TToken>> Parse(ParsingContext context)
-        => ParseAlgebraicExpression(context, _primary, _ops, _minPrec);
+    {
+        var result = ParseAlgebraicExpression(context, _primary, _ops, _minPrec);
+        if (result.Result is not BinaryOperation<TToken>)
+            return new ParsingResult<BinaryOperationOperand<TToken>>(context, false, null, "No operator found");
+
+        return result;
+    }
 
     private static IParsingResult<BinaryOperationOperand<TToken>> ParseAlgebraicExpression(
         ParsingContext context,
@@ -67,7 +73,7 @@ public class AlgebraicExpressionParser<TToken> : ParserBase<BinaryOperationOpera
             left = new BinaryOperation<TToken>(left, rightRes.Result!, op);
             ctx = rightRes.Context;
         }
-
+        
         return new ParsingResult<BinaryOperationOperand<TToken>>(ctx, true, left, null);
     }
 

@@ -7,6 +7,26 @@ namespace EasyParsing.Tests;
 public class MathsExpressionsParserTests
 {
     [Test]
+    public void ParsingSimpleInteger_Should_Fail()
+    {
+        var operandParser =
+            from a in Parse.SkipSpaces()
+            from n in Parse.ManySatisfy(char.IsNumber)
+            from b in Parse.SkipSpaces()
+            select new BinaryOperationOperandValue<string>(n);
+
+        var text = "125";
+
+        var result = MathsParser.ParseAlgebraicExpression(operandParser,
+        [
+            new Operator<string>(OperatorKind.Infix, "+", 1),
+            new Operator<string>(OperatorKind.Infix, "-", 1)
+        ]).Parse(text);
+        
+        Assert.That(result.Success, Is.False);
+    }
+    
+    [Test]
     public void ParsingSimpleAdditionOfTwoSimpleIntegers_Should_Success()
     {
         var operandParser =
