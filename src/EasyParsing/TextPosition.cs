@@ -56,5 +56,4 @@ public record TextPosition(long Offset, int Column, int Line)
             Column = column
         };
     }
-    
 }
