@@ -3,7 +3,7 @@ namespace EasyParsing;
 /// <summary>
 /// Represents the position of a character in a text, including its offset, column, and line.
 /// </summary>
-public record TextPosition(long Offset, int Column, int Line)
+public record struct TextPosition(long Offset, int Column, int Line)
 {
     /// <summary>
     /// Gets the zero position in the text, represented by offset 0, column 0, and line 0.
