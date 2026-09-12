@@ -11,6 +11,12 @@ C# lite parser combinator helping to create parsers easily.
 - Good performances
 - Lightweight  library
 
+## Interactive documentation
+
+Explore the [EasyParsing Lab](doc/site/README.md): installation, parser combinators, and an interactive view of the decimal pipeline, backtracking, and JSON parsing. English and French are available, with light and dark themes.
+
+From the repository root, run `node doc/serve-site.mjs`, then open [http://127.0.0.1:4173](http://127.0.0.1:4173). Node.js 22 or later is sufficient; no package installation or build is required.
+
 ## Installation
 
 After adding my feed `https://nuget.pkg.github.com/rflechner/index.json` in your sources 
