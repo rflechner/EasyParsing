@@ -12,7 +12,7 @@ public class MarkdownParserTests
         
         MarkdownParser.TryParseMarkdown(markdown, out var results).Should().BeTrue();
 
-        results[0].Should().Be(new Crlf());
+        results[0].Should().Be(new ParagraphStart());
         results[1].Should().BeEquivalentTo(new Title(1, [new RawText("Big title 1")]));
         results[2].Should().Be(new ParagraphStart());
         

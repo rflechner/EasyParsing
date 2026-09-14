@@ -198,4 +198,13 @@ public static class Parse
     /// text constructs, such as JSON or Markdown.
     /// </remarks>
     public static readonly IParser<string> QuotedTextParser = CreateStringParser('\'') | CreateStringParser('"');
+
+    /// <summary>
+    /// Creates a lazy parser that defers the creation of the actual parser until parsing begins.
+    /// This is useful for recursive parsers where a parser needs to reference itself.
+    /// </summary>
+    /// <typeparam name="T">The type of value the parser produces.</typeparam>
+    /// <param name="parserFactory">A factory function that creates the parser when needed.</param>
+    /// <returns>A lazy parser that will invoke the factory function when parsing.</returns>
+    public static IParser<T> Lazy<T>(Func<IParser<T>> parserFactory) => new LazyParser<T>(parserFactory);
 }
