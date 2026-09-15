@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
     inputs:
       run_id:
-        description: Workflow run ID containing the tested package
-        required: true
+        description: Workflow run ID (leave empty for the latest successful main build)
+        required: false
         type: string
       version:
         description: EasyParsing package version to publish
@@ -36,6 +36,38 @@ jobs:
       with:
         dotnet-version: 10.0.x
 
+    - name: Resolve package workflow run
+      id: package-run
+      shell: bash
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RUN_ID: ${{ inputs.run_id }}
+      run: |
+        if [[ -z "$RUN_ID" ]]; then
+          RUN_ID="$(gh run list \
+            --repo "$GITHUB_REPOSITORY" \
+            --workflow dotnet.yml \
+            --branch main \
+            --event push \
+            --status success \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')"
+
+          if [[ -z "$RUN_ID" || "$RUN_ID" == "null" ]]; then
+            echo "::error::No successful dotnet.yml push run found on main."
+            exit 1
+          fi
+        fi
+
+        if [[ ! "$RUN_ID" =~ ^[1-9][0-9]*$ ]]; then
+          echo "::error::Workflow run ID must be a positive integer."
+          exit 1
+        fi
+
+        echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+        echo "Using package from $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$RUN_ID"
+
     - name: Download tested NuGet package
       uses: actions/download-artifact@v4
       with:
@@ -43,7 +75,7 @@ jobs:
         path: artifacts
         github-token: ${{ secrets.GITHUB_TOKEN }}
         repository: ${{ github.repository }}
-        run-id: ${{ inputs.run_id }}
+        run-id: ${{ steps.package-run.outputs.run_id }}
 
     - name: Validate selected package
       shell: bash
