@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       run_id:
-        description: Workflow run ID (leave empty for the latest successful main build)
+        description: Workflow run ID (optional; stable uses latest main, beta uses its commit)
         required: false
         type: string
       version:
@@ -42,12 +42,30 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         RUN_ID: ${{ inputs.run_id }}
+        PACKAGE_VERSION: ${{ inputs.version }}
       run: |
+        if [[ ! "$PACKAGE_VERSION" =~ ^[0-9A-Za-z][0-9A-Za-z.-]*$ ]]; then
+          echo "::error::Invalid package version: $PACKAGE_VERSION"
+          exit 1
+        fi
+
         if [[ -z "$RUN_ID" ]]; then
+          BUILD_BRANCH=main
+          COMMIT_FILTER=()
+          if [[ "$PACKAGE_VERSION" =~ -beta-([0-9a-f]{7,40})$ ]]; then
+            BUILD_BRANCH=develop
+            COMMIT_SHA="$(gh api "repos/$GITHUB_REPOSITORY/commits/${BASH_REMATCH[1]}" --jq '.sha')"
+            COMMIT_FILTER=(--commit "$COMMIT_SHA")
+          elif [[ "$PACKAGE_VERSION" == *-* ]]; then
+            echo "::error::Provide run_id for prerelease versions outside the beta-<commit> naming convention."
+            exit 1
+          fi
+
           RUN_ID="$(gh run list \
             --repo "$GITHUB_REPOSITORY" \
             --workflow dotnet.yml \
-            --branch main \
+            --branch "$BUILD_BRANCH" \
+            "${COMMIT_FILTER[@]}" \
             --event push \
             --status success \
             --limit 1 \
@@ -55,13 +73,20 @@ jobs:
             --jq '.[0].databaseId')"
 
           if [[ -z "$RUN_ID" || "$RUN_ID" == "null" ]]; then
-            echo "::error::No successful dotnet.yml push run found on main."
+            echo "::error::No successful dotnet.yml push run found on $BUILD_BRANCH for $PACKAGE_VERSION. Provide run_id to select a specific build."
             exit 1
           fi
         fi
 
         if [[ ! "$RUN_ID" =~ ^[1-9][0-9]*$ ]]; then
           echo "::error::Workflow run ID must be a positive integer."
+          exit 1
+        fi
+
+        ARTIFACT_COUNT="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/artifacts" \
+          --paginate --jq '[.artifacts[] | select(.name == "easyparsing-nuget" and .expired == false)] | length')"
+        if ! [[ "$ARTIFACT_COUNT" =~ [1-9] ]]; then
+          echo "::error::Run $RUN_ID has no available easyparsing-nuget artifact. Choose a build that saved the requested package, or rebuild the source commit with artifact upload enabled."
           exit 1
         fi
 
@@ -87,8 +112,14 @@ jobs:
           exit 1
         fi
 
-        test -f "artifacts/EasyParsing.$PACKAGE_VERSION.nupkg"
-        test -f "artifacts/EasyParsing.$PACKAGE_VERSION.snupkg"
+        for EXTENSION in nupkg snupkg; do
+          if [[ ! -f "artifacts/EasyParsing.$PACKAGE_VERSION.$EXTENSION" ]]; then
+            echo "::error::Run ${{ steps.package-run.outputs.run_id }} does not contain EasyParsing.$PACKAGE_VERSION.$EXTENSION. Select the run_id matching the requested version."
+            echo "Downloaded packages:"
+            find artifacts -maxdepth 1 -type f -print
+            exit 1
+          fi
+        done
 
     - name: Authenticate to NuGet.org
       uses: NuGet/login@v1
