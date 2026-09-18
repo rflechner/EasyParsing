@@ -17,6 +17,7 @@ on:
 permissions:
   contents: read
   actions: read
+  packages: read
   id-token: write
 
 jobs:
@@ -86,14 +87,17 @@ jobs:
         ARTIFACT_COUNT="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/artifacts" \
           --paginate --jq '[.artifacts[] | select(.name == "easyparsing-nuget" and .expired == false)] | length')"
         if ! [[ "$ARTIFACT_COUNT" =~ [1-9] ]]; then
-          echo "::error::Run $RUN_ID has no available easyparsing-nuget artifact. Choose a build that saved the requested package, or rebuild the source commit with artifact upload enabled."
-          exit 1
+          echo "Run $RUN_ID has no available artifact; downloading $PACKAGE_VERSION from GitHub Packages."
+          echo "source=packages" >> "$GITHUB_OUTPUT"
+          exit 0
         fi
 
+        echo "source=artifact" >> "$GITHUB_OUTPUT"
         echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
         echo "Using package from $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$RUN_ID"
 
     - name: Download tested NuGet package
+      if: steps.package-run.outputs.source == 'artifact'
       uses: actions/download-artifact@v4
       with:
         name: easyparsing-nuget
@@ -101,6 +105,32 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         repository: ${{ github.repository }}
         run-id: ${{ steps.package-run.outputs.run_id }}
+
+    - name: Download existing package from GitHub Packages
+      if: steps.package-run.outputs.source == 'packages'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PACKAGE_VERSION: ${{ inputs.version }}
+      run: |
+        INDEX_URL="https://nuget.pkg.github.com/$GITHUB_REPOSITORY_OWNER/index.json"
+        BASE_URL="$(curl --fail --silent --show-error \
+          --user "$GITHUB_ACTOR:$GH_TOKEN" "$INDEX_URL" \
+          | jq -er '.resources[] | select(."@type" == "PackageBaseAddress/3.0.0") | ."@id"')"
+        if [[ "$BASE_URL" != https://nuget.pkg.github.com/* ]]; then
+          echo "::error::Unexpected GitHub Packages download endpoint."
+          exit 1
+        fi
+
+        VERSION="${PACKAGE_VERSION,,}"
+        PACKAGE_URL="${BASE_URL%/}/easyparsing/$VERSION/easyparsing.$VERSION.nupkg"
+        mkdir -p artifacts
+        if ! curl --fail --silent --show-error --location \
+          --user "$GITHUB_ACTOR:$GH_TOKEN" \
+          --output "artifacts/EasyParsing.$PACKAGE_VERSION.nupkg" "$PACKAGE_URL"; then
+          echo "::error::Cannot download EasyParsing $PACKAGE_VERSION. Check that the version exists and this repository has Actions read access to the GitHub package."
+          exit 1
+        fi
 
     - name: Validate selected package
       shell: bash
@@ -112,14 +142,31 @@ jobs:
           exit 1
         fi
 
-        for EXTENSION in nupkg snupkg; do
-          if [[ ! -f "artifacts/EasyParsing.$PACKAGE_VERSION.$EXTENSION" ]]; then
-            echo "::error::Run ${{ steps.package-run.outputs.run_id }} does not contain EasyParsing.$PACKAGE_VERSION.$EXTENSION. Select the run_id matching the requested version."
-            echo "Downloaded packages:"
-            find artifacts -maxdepth 1 -type f -print
-            exit 1
-          fi
-        done
+        if [[ ! -f "artifacts/EasyParsing.$PACKAGE_VERSION.nupkg" ]]; then
+          echo "::error::The selected build does not contain EasyParsing.$PACKAGE_VERSION.nupkg. Select the run_id matching the requested version."
+          find artifacts -maxdepth 1 -type f -print
+          exit 1
+        fi
+
+        python3 - <<'PYTHON'
+        import os
+        import xml.etree.ElementTree as ET
+        import zipfile
+
+        version = os.environ["PACKAGE_VERSION"]
+        with zipfile.ZipFile(f"artifacts/EasyParsing.{version}.nupkg") as package:
+            manifests = [name for name in package.namelist() if name.endswith(".nuspec") and "/" not in name]
+            if len(manifests) != 1:
+                raise SystemExit("::error::Expected exactly one package manifest.")
+            metadata = ET.fromstring(package.read(manifests[0])).find("{*}metadata")
+            if metadata is None:
+                raise SystemExit("::error::Missing package metadata.")
+            package_id = metadata.findtext("{*}id", default="")
+            package_version = metadata.findtext("{*}version", default="")
+            if package_id.lower() != "easyparsing" or package_version.lower() != version.lower():
+                raise SystemExit("::error::Package identity does not match the requested EasyParsing version.")
+        print(f"Validated EasyParsing {version}")
+        PYTHON
 
     - name: Authenticate to NuGet.org
       uses: NuGet/login@v1
@@ -138,6 +185,7 @@ jobs:
         --skip-duplicate
 
     - name: Publish NuGet symbols
+      if: hashFiles(format('artifacts/EasyParsing.{0}.snupkg', inputs.version)) != ''
       env:
         NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
         PACKAGE_VERSION: ${{ inputs.version }}
