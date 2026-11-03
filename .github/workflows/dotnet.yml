@@ -44,12 +44,25 @@ jobs:
       working-directory: src
       run: nuke
 
+    - name: Save NuGet package for manual release
+      if: github.event_name == 'push'
+      uses: actions/upload-artifact@v4
+      with:
+        name: easyparsing-nuget
+        path: |
+          artifacts/*.nupkg
+          artifacts/*.snupkg
+        if-no-files-found: error
+        retention-days: 30
+
     - name: Publish NuGet Package to GitHub Packages
+      if: github.event_name == 'push'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: dotnet nuget push artifacts/*.nupkg --source "https://nuget.pkg.github.com/rflechner/index.json" --api-key $GITHUB_TOKEN --skip-duplicate
 
     - name: Publish NuGet Package symbols to GitHub Packages
+      if: github.event_name == 'push'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: dotnet nuget push artifacts/*.snupkg --source "https://nuget.pkg.github.com/rflechner/index.json" --api-key $GITHUB_TOKEN --skip-duplicate

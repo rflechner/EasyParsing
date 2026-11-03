@@ -35,9 +35,7 @@ class Build : NukeBuild
     
     AbsolutePath[] PublishedProjects =>
     [
-        CoreLibProject,
-        JsonParserProject,
-        MarkdownParserProject
+        CoreLibProject
     ];
     
     [Solution] readonly Solution Solution;

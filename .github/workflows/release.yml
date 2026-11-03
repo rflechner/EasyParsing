@@ -1,0 +1,196 @@
+name: Release to NuGet.org
+
+run-name: Release EasyParsing ${{ inputs.version }} to NuGet.org
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Workflow run ID (optional; stable uses latest main, beta uses its commit)
+        required: false
+        type: string
+      version:
+        description: EasyParsing package version to publish
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+  packages: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish EasyParsing ${{ inputs.version }}
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: nuget-org
+
+    concurrency:
+      group: nuget-org-release
+      cancel-in-progress: false
+
+    steps:
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Resolve package workflow run
+      id: package-run
+      shell: bash
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RUN_ID: ${{ inputs.run_id }}
+        PACKAGE_VERSION: ${{ inputs.version }}
+      run: |
+        if [[ ! "$PACKAGE_VERSION" =~ ^[0-9A-Za-z][0-9A-Za-z.-]*$ ]]; then
+          echo "::error::Invalid package version: $PACKAGE_VERSION"
+          exit 1
+        fi
+
+        if [[ -z "$RUN_ID" ]]; then
+          BUILD_BRANCH=main
+          COMMIT_FILTER=()
+          if [[ "$PACKAGE_VERSION" =~ -beta-([0-9a-f]{7,40})$ ]]; then
+            BUILD_BRANCH=develop
+            COMMIT_SHA="$(gh api "repos/$GITHUB_REPOSITORY/commits/${BASH_REMATCH[1]}" --jq '.sha')"
+            COMMIT_FILTER=(--commit "$COMMIT_SHA")
+          elif [[ "$PACKAGE_VERSION" == *-* ]]; then
+            echo "::error::Provide run_id for prerelease versions outside the beta-<commit> naming convention."
+            exit 1
+          fi
+
+          RUN_ID="$(gh run list \
+            --repo "$GITHUB_REPOSITORY" \
+            --workflow dotnet.yml \
+            --branch "$BUILD_BRANCH" \
+            "${COMMIT_FILTER[@]}" \
+            --event push \
+            --status success \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')"
+
+          if [[ -z "$RUN_ID" || "$RUN_ID" == "null" ]]; then
+            echo "::error::No successful dotnet.yml push run found on $BUILD_BRANCH for $PACKAGE_VERSION. Provide run_id to select a specific build."
+            exit 1
+          fi
+        fi
+
+        if [[ ! "$RUN_ID" =~ ^[1-9][0-9]*$ ]]; then
+          echo "::error::Workflow run ID must be a positive integer."
+          exit 1
+        fi
+
+        ARTIFACT_COUNT="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/artifacts" \
+          --paginate --jq '[.artifacts[] | select(.name == "easyparsing-nuget" and .expired == false)] | length')"
+        if ! [[ "$ARTIFACT_COUNT" =~ [1-9] ]]; then
+          echo "Run $RUN_ID has no available artifact; downloading $PACKAGE_VERSION from GitHub Packages."
+          echo "source=packages" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        echo "source=artifact" >> "$GITHUB_OUTPUT"
+        echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+        echo "Using package from $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$RUN_ID"
+
+    - name: Download tested NuGet package
+      if: steps.package-run.outputs.source == 'artifact'
+      uses: actions/download-artifact@v4
+      with:
+        name: easyparsing-nuget
+        path: artifacts
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        repository: ${{ github.repository }}
+        run-id: ${{ steps.package-run.outputs.run_id }}
+
+    - name: Download existing package from GitHub Packages
+      if: steps.package-run.outputs.source == 'packages'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PACKAGE_VERSION: ${{ inputs.version }}
+      run: |
+        INDEX_URL="https://nuget.pkg.github.com/$GITHUB_REPOSITORY_OWNER/index.json"
+        BASE_URL="$(curl --fail --silent --show-error \
+          --user "$GITHUB_ACTOR:$GH_TOKEN" "$INDEX_URL" \
+          | jq -er '.resources[] | select(."@type" == "PackageBaseAddress/3.0.0") | ."@id"')"
+        if [[ "$BASE_URL" != https://nuget.pkg.github.com/* ]]; then
+          echo "::error::Unexpected GitHub Packages download endpoint."
+          exit 1
+        fi
+
+        VERSION="${PACKAGE_VERSION,,}"
+        PACKAGE_URL="${BASE_URL%/}/easyparsing/$VERSION/easyparsing.$VERSION.nupkg"
+        mkdir -p artifacts
+        if ! curl --fail --silent --show-error --location \
+          --user "$GITHUB_ACTOR:$GH_TOKEN" \
+          --output "artifacts/EasyParsing.$PACKAGE_VERSION.nupkg" "$PACKAGE_URL"; then
+          echo "::error::Cannot download EasyParsing $PACKAGE_VERSION. Check that the version exists and this repository has Actions read access to the GitHub package."
+          exit 1
+        fi
+
+    - name: Validate selected package
+      shell: bash
+      env:
+        PACKAGE_VERSION: ${{ inputs.version }}
+      run: |
+        if [[ ! "$PACKAGE_VERSION" =~ ^[0-9A-Za-z][0-9A-Za-z.-]*$ ]]; then
+          echo "Invalid package version: $PACKAGE_VERSION"
+          exit 1
+        fi
+
+        if [[ ! -f "artifacts/EasyParsing.$PACKAGE_VERSION.nupkg" ]]; then
+          echo "::error::The selected build does not contain EasyParsing.$PACKAGE_VERSION.nupkg. Select the run_id matching the requested version."
+          find artifacts -maxdepth 1 -type f -print
+          exit 1
+        fi
+
+        python3 - <<'PYTHON'
+        import os
+        import xml.etree.ElementTree as ET
+        import zipfile
+
+        version = os.environ["PACKAGE_VERSION"]
+        with zipfile.ZipFile(f"artifacts/EasyParsing.{version}.nupkg") as package:
+            manifests = [name for name in package.namelist() if name.endswith(".nuspec") and "/" not in name]
+            if len(manifests) != 1:
+                raise SystemExit("::error::Expected exactly one package manifest.")
+            metadata = ET.fromstring(package.read(manifests[0])).find("{*}metadata")
+            if metadata is None:
+                raise SystemExit("::error::Missing package metadata.")
+            package_id = metadata.findtext("{*}id", default="")
+            package_version = metadata.findtext("{*}version", default="")
+            if package_id.lower() != "easyparsing" or package_version.lower() != version.lower():
+                raise SystemExit("::error::Package identity does not match the requested EasyParsing version.")
+        print(f"Validated EasyParsing {version}")
+        PYTHON
+
+    - name: Authenticate to NuGet.org
+      uses: NuGet/login@v1
+      id: nuget-login
+      with:
+        user: ${{ secrets.NUGET_USER }}
+
+    - name: Publish NuGet package
+      env:
+        NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+        PACKAGE_VERSION: ${{ inputs.version }}
+      run: >
+        dotnet nuget push "artifacts/EasyParsing.$PACKAGE_VERSION.nupkg"
+        --source https://api.nuget.org/v3/index.json
+        --api-key "$NUGET_API_KEY"
+        --skip-duplicate
+
+    - name: Publish NuGet symbols
+      if: hashFiles(format('artifacts/EasyParsing.{0}.snupkg', inputs.version)) != ''
+      env:
+        NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+        PACKAGE_VERSION: ${{ inputs.version }}
+      run: >
+        dotnet nuget push "artifacts/EasyParsing.$PACKAGE_VERSION.snupkg"
+        --source https://api.nuget.org/v3/index.json
+        --api-key "$NUGET_API_KEY"
+        --skip-duplicate
